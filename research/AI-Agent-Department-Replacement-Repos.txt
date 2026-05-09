@@ -1,0 +1,768 @@
+================================================================================
+AI AGENT SYSTEMS THAT REPLACE/AUTOMATE ENTIRE BUSINESS DEPARTMENTS
+COMPREHENSIVE GITHUB REPOSITORY RESEARCH - May 2026
+================================================================================
+
+TABLE OF CONTENTS
+1.  Zero-Employee / AI-First Company Frameworks
+2.  AI Software Company Simulations & Dev Teams
+3.  Multi-Agent Orchestration Frameworks
+4.  AI Customer Support Systems
+5.  AI Sales & Marketing Automation
+6.  AI HR / Recruitment Systems
+7.  AI Finance / Accounting
+8.  AI Legal / Compliance
+9.  AI Data Analysis / BI / Text-to-SQL
+10. AI Project Management & Operations
+11. AI Meeting & Documentation
+12. AI Voice & Call Center
+13. Multi-Agent Business Simulations
+14. Industry-Specific AI Systems (Real Estate, Healthcare, Education)
+15. Curated Awesome Lists & Meta-Resources
+16. AI Workflow Automation Platforms (No-Code / Low-Code)
+17. AI Browser Automation Agents
+
+================================================================================
+1. ZERO-EMPLOYEE / AI-FIRST COMPANY FRAMEWORKS
+================================================================================
+
+PAPERCLIP
+  URL:         https://github.com/paperclipai/paperclip
+  Stars:       43,000+ (launched March 2026, hit 30K in 3 weeks)
+  License:     Open Source
+  Description: The #1 open-source orchestration framework for zero-human
+               companies. Node.js server + React UI that orchestrates AI agent
+               teams to run a business. Features org charts, goals, budgets,
+               governance, agent coordination, cost tracking by company/agent/
+               project, approval gates, audit trails, multi-company support.
+  Note:        The defining project of the "zero-employee company" movement.
+
+SYNTHORG
+  URL:         https://github.com/Aureliolo/synthorg
+  Description: Framework for building synthetic organizations -- autonomous AI
+               agents orchestrated as a virtual company. Define agents with
+               roles (CEO, developer, designer, QA), personalities, budgets,
+               and tools. Agents collaborate through structured communication,
+               follow workflows, and produce real artifacts (code, documents,
+               designs).
+
+COVALENT AI AGENT SDK (Zero-Employee Enterprise / ZEE)
+  URL:         https://github.com/covalenthq/ai-agent-sdk
+  Description: Build autonomous AI agents for the Zero-Employee Enterprise.
+               Swarm of Chain-of-Thought reasoning agents that function as a
+               self-sustaining system, adapting dynamically to business needs.
+               Focused on onchain/crypto-native autonomous agents.
+
+HEADCOUNT ZERO (Book + Templates)
+  URL:         https://github.com/AnthonyDavidAdams/zero-employee-company-book
+  Description: "Headcount Zero: How to Build an AI-Run Company with Paperclip"
+               -- shows founders how to build companies using AI agents as
+               their entire workforce.
+
+AGENCY AGENTS ("The Agency")
+  URL:         https://github.com/msitarzewski/agency-agents
+  Stars:       10,000+ (10K stars in 7 days)
+  Description: 61 agent definition files across 9 divisions. Each file gives
+               Claude (or any AI tool) a specific identity, workflow, set of
+               deliverables, and success metrics. Covers engineering, design,
+               growth marketing, and more. Designed to replace an entire
+               agency's workforce.
+
+================================================================================
+2. AI SOFTWARE COMPANY SIMULATIONS & DEVELOPMENT TEAMS
+================================================================================
+
+METAGPT
+  URL:         https://github.com/FoundationAgents/MetaGPT
+  Stars:       67,400+
+  License:     MIT
+  Description: "The Multi-Agent Framework: First AI Software Company, Towards
+               Natural Language Programming." Simulates a real software company
+               with Product Managers, Architects, Project Managers, and
+               Engineers. Takes a one-line requirement and outputs user stories,
+               competitive analysis, requirements, data structures, APIs,
+               documentation, code, and tests.
+
+CHATDEV 2.0
+  URL:         https://github.com/OpenBMB/ChatDev
+  Description: Virtual Software Company with agents (CEO, CTO, Programmer)
+               participating in functional seminars to automate the entire
+               software development lifecycle. ChatDev 2.0 evolved into a
+               general-purpose multi-agent zero-code platform ("DevAll").
+               Introduced MacNet for collaboration among 1000+ agents. Python
+               SDK available on PyPI.
+
+OPENHANDS (formerly OpenDevin)
+  URL:         https://github.com/OpenHands/OpenHands
+  Stars:       70,000+
+  License:     MIT
+  Contributors: 490+
+  Description: AI-driven software development platform. Autonomous agents that
+               plan, write, and apply changes across codebases. Writes code,
+               runs terminal commands, browses the web, opens PRs -- all in
+               sandboxed Docker. Resolves 53%+ of real-world GitHub issues on
+               SWE-bench Verified. Matches Devin on benchmarks, free to
+               self-host, 66K+ users in production.
+
+DEVIKA
+  URL:         https://github.com/stitionai/devika
+  Stars:       ~10,000
+  Description: First open-source implementation of an Agentic Software
+               Engineer. Open-source alternative to Devin. Understands
+               high-level instructions, breaks them into steps, researches
+               information, and writes code. Supports Claude, GPT-4, Gemini,
+               Mistral, Groq, and local LLMs via Ollama.
+
+SWE-AGENT
+  URL:         https://github.com/princeton-nlp/SWE-agent
+  Description: By Princeton and Stanford researchers. Enables LLMs (GPT-4o,
+               Claude) to autonomously solve GitHub issues, fix bugs, implement
+               features. State-of-the-art on SWE-bench among open-source
+               projects. Uses Agent-Computer Interface (ACI) with constrained
+               commands.
+
+AWESOME-DEVINS (Curated List of Devin Alternatives)
+  URL:         https://github.com/e2b-dev/awesome-devins
+  Description: Curated list of Devin-inspired AI agents including OpenHands,
+               Devika, SWE-agent, Aider, AutoCodeRover, Plandex, and many
+               more.
+
+SYMPHONY (OpenAI)
+  URL:         https://openai.com/index/open-source-codex-orchestration-symphony/
+  Description: Agent orchestrator that turns a project-management board (like
+               Linear) into a control plane for coding agents. Every open task
+               gets an agent; agents run continuously; humans review results.
+
+================================================================================
+3. MULTI-AGENT ORCHESTRATION FRAMEWORKS
+================================================================================
+
+CREWAI
+  URL:         https://github.com/crewaiinc/crewai
+  Stars:       ~27,000+
+  Description: Framework for orchestrating role-playing, autonomous AI agents.
+               Fosters collaborative intelligence for tackling complex tasks.
+               Supports automation across all departments: marketing, sales,
+               support, HR, finance. CrewAI Studio provides no-code agent
+               building with 3000+ integrations (Gmail, Teams, Notion,
+               HubSpot, Salesforce, Slack).
+
+  CREWAI-EXAMPLES
+  URL:         https://github.com/crewAIInc/crewAI-examples
+  Description: Collection of real-life examples including Game Builder Crew,
+               Instagram Post creation, Landing Page Generator, and more.
+
+AUTOGEN / MICROSOFT AGENT FRAMEWORK
+  URL (AutoGen):          https://github.com/microsoft/autogen
+  Stars:                  50,400+
+  URL (Agent Framework):  https://github.com/microsoft/agent-framework
+  Description: AutoGen (now in maintenance) merging with Semantic Kernel into
+               Microsoft Agent Framework 1.0. Supports sequential, concurrent,
+               handoff, group chat, and Magentic-One orchestration patterns.
+               Streaming, checkpointing, human-in-the-loop, pause/resume.
+
+  MULTI-AGENT CUSTOM AUTOMATION ENGINE
+  URL:         https://github.com/microsoft/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator
+  Description: AI-driven system managing groups of AI agents to accomplish
+               tasks based on user input. Foundation for building AI-driven
+               orchestration for various business processes.
+
+LANGGRAPH
+  URL:         https://github.com/langchain-ai/langgraph
+  Description: Framework for building resilient language agents as graphs.
+               Durable execution, persistence through failures. Best for
+               production systems with complex routing -- customer support
+               bots with escalation, multi-step approval workflows.
+
+  LANGGRAPH 50+ BUSINESS AGENTS BOOK
+  URL:         https://github.com/jkmaina/LangGraphProjects
+  Description: "The Complete LangGraph Blueprint: Build 50+ AI Agents for
+               Business Success" companion repository.
+
+  LANGGRAPH 20 REAL-WORLD AGENT PROJECTS
+  URL:         https://github.com/hereandnowai/master-langgraph-workflows-in-python-20-real-world-agent-projects-by-hereandnow-ai
+  Description: 20 agent projects from chatbots and finance bots to multi-agent
+               orchestrations. Includes Capstone Unified Assistant combining
+               Finance + HR + Marketing orchestration.
+
+PRAISONAI
+  URL:         https://github.com/MervinPraison/PraisonAI
+  Description: Production-ready multi-agent framework. "Hire a 24/7 AI
+               Workforce." Autonomous self-improving agents that research,
+               plan, code, and execute. 5 lines of code deployment. Built-in
+               memory, RAG, 100+ LLM support. Core SDK, CLI, Dashboard
+               (Telegram/Slack/Discord), and Visual Flow Builder.
+
+SWARMS
+  URL:         https://github.com/kyegomez/swarms
+  Stars:       ~39,000+
+  Description: Enterprise-grade production-ready multi-agent orchestration.
+               Hierarchical agent swarms, parallel processing, sequential
+               workflows, graph-based networks, dynamic composition. Also
+               available in Rust (swarms-rs).
+
+AGENCY-SWARM
+  URL:         https://github.com/VRSEN/agency-swarm
+  Description: Reliable multi-agent orchestration framework.
+
+OPENAI SWARM
+  URL:         https://github.com/openai/swarm
+  Description: Educational framework exploring ergonomic, lightweight
+               multi-agent orchestration. By OpenAI Solution team.
+
+================================================================================
+4. AI CUSTOMER SUPPORT SYSTEMS
+================================================================================
+
+CHATWOOT
+  URL:         https://github.com/chatwoot/chatwoot
+  Stars:       21,000+
+  License:     Open Source
+  Description: Open-source live-chat, email support, omni-channel desk.
+               Alternative to Intercom, Zendesk, Salesforce Service Cloud.
+               AI agent "Captain" automates responses and handles common
+               queries. Self-hosted or cloud.
+
+TILEDESK
+  URL:         https://github.com/Tiledesk/tiledesk-server
+  Description: Open-source AI agent builder. Alternative to Voiceflow,
+               Botpress. Advanced LLM-powered agents with human-in-the-loop.
+               No-code automation workflows, native RAGs, self-learning.
+               Built on MongoDB, RabbitMQ/MQTT, Redis, Qdrant, vLLM/Ollama.
+
+OPENAI CS AGENTS DEMO
+  URL:         https://github.com/openai/openai-cs-agents-demo
+  Description: Official OpenAI demo of a customer service use case implemented
+               with the OpenAI Agents SDK.
+
+CREWAI CUSTOMER SUPPORT AGENT
+  URL:         https://github.com/Engmhabib/Customer-Support-AI-Agent
+  Description: AI-powered customer support automation using CrewAI and
+               LangChain. Automated responses, product recommendations,
+               escalation management.
+
+================================================================================
+5. AI SALES & MARKETING AUTOMATION
+================================================================================
+
+SALESGPT
+  URL:         https://github.com/filip-michalsky/SalesGPT
+  Description: Context-aware AI Sales Agent to automate sales outreach. Works
+               across voice, email, SMS, WhatsApp, WeChat, Telegram. Can
+               autonomously generate Stripe payment links to sell products.
+
+AI MARKETING SKILLS (by Single Brain / Eric Siu)
+  URL:         https://github.com/ericosiu/ai-marketing-skills
+  Description: Open-source AI marketing skills for growth experiments, sales
+               pipeline, content ops, outbound, SEO, and finance automation.
+               Battle-tested on real pipelines generating millions in revenue.
+               Uses bootstrap confidence intervals and Mann-Whitney U tests.
+
+AI SALES AGENT
+  URL:         https://github.com/kaymen99/AI-Sales-agent
+  Description: AI agent that talks with customers, recommends products, books
+               consultations, and processes Stripe payments.
+
+KNOTIE-AI
+  URL:         https://github.com/avijeett007/Knotie-AI
+  Description: Completely open-source inbound/outbound AI Sales Agent. Creates
+               and manages workflows, integrates with popular business software.
+
+LANGCHAIN SOCIAL MEDIA AGENT
+  URL:         https://github.com/langchain-ai/social-media-agent
+  Description: Agent for sourcing, curating, and scheduling social media posts
+               with human-in-the-loop.
+
+SALESABLY AWESOME AI AGENTS FOR SALES
+  URL:         https://github.com/Salesably/awesome-ai-agents-for-sales
+  Description: Curated list of AI agents, tools, and resources transforming
+               B2B sales.
+
+================================================================================
+6. AI HR / RECRUITMENT SYSTEMS
+================================================================================
+
+RESUME-MATCHER
+  URL:         https://github.com/srbhr/Resume-Matcher
+  Description: AI-powered resume matching with keyword suggestions. Works
+               locally with Ollama or connects to LLM providers via API.
+               Tunes resumes to job descriptions.
+
+SMARTRECRUIT_LLM (RucRut)
+  URL:         https://github.com/OmarNouih/SmartRecruit_LLM
+  Description: AI-powered recruitment system that auto-generates interview
+               questions, evaluates candidate responses, and provides
+               real-time feedback using NLP.
+
+AI-BASED RECRUITMENT SYSTEM
+  URL:         https://github.com/manthan89-py/AI-Based-Recruitment-System
+  Description: Accelerates hiring for HR/technical recruiters. Upload resumes
+               and job descriptions, auto-sends email notifications with
+               feedback, schedules Zoom meetings for initial interviews.
+
+AUTOMATED RESUME SCREENING SYSTEM
+  URL:         https://github.com/JAIJANYANI/Automated-Resume-Screening-System
+  Description: Web app using Collaborative and Content-Based filtering for
+               fuzzy matching job descriptions with multiple resumes.
+
+SMART AI RESUME ANALYZER
+  URL:         https://github.com/Hunterdii/Smart-AI-Resume-Analyzer
+  Description: Professional template building, ATS-friendly analysis, and
+               AI-driven optimization for resume crafting.
+
+EAZYRECRUIT
+  URL:         https://github.com/yogeshrawal2/Eazyrecruit-docs
+  Description: AI-enabled open source recruitment software with resume parsing,
+               job listing, applicant tracking, interview scheduling.
+
+================================================================================
+7. AI FINANCE / ACCOUNTING
+================================================================================
+
+TAXHACKER
+  URL:         https://github.com/vas3k/TaxHacker
+  Description: Self-hosted AI accounting app for freelancers and small
+               businesses. LLM analyzer for receipts, invoices, transactions.
+               Auto-recognition, extraction, categorization. Supports OpenAI,
+               Gemini, Mistral, or local LLMs.
+
+BIGCAPITAL
+  URL:         https://github.com/bigcapitalhq/bigcapital
+  License:     AGPL
+  Description: Smart open-source accounting and inventory software. Alternative
+               to QuickBooks, Xero, Wave. Automates accounting processes with
+               powerful financial statements and reports. Docker self-hosted.
+
+FINROBOT
+  URL:         https://github.com/AI4Finance-Foundation/FinRobot
+  Stars:       ~1,148
+  License:     Apache-2.0
+  Description: Open-source AI Agent platform for financial analysis using LLMs.
+               Multi-agent workflows for investment research, algorithmic
+               trading, risk assessment. Unifies LLMs, reinforcement learning,
+               and quantitative analytics.
+
+FINGPT
+  URL:         https://github.com/AI4Finance-Foundation/FinGPT
+  Stars:       ~2,830
+  License:     MIT
+  Description: Open-source Financial Large Language Models. Sentiment analysis,
+               market forecasting, intelligent financial assistants. FinGPT v3
+               achieves best scores on financial sentiment analysis datasets.
+
+ACCOUNTING AI AGENT
+  URL:         https://github.com/micode-ai/accounting-ai-agent
+  Description: AI agent for automation of bookkeeping and financial reporting.
+
+ACCOUNTS AI
+  URL:         https://github.com/panaversity/accounts_ai
+  Description: AI-based accounting co-pilot. Integrates with existing systems
+               via plugins/connectors. Automates bookkeeping, compliance,
+               insights, and decision support.
+
+AWESOME AI IN FINANCE
+  URL:         https://github.com/georgezouq/awesome-ai-in-finance
+  Description: Curated list of LLMs and deep learning strategies/tools in
+               financial markets.
+
+INVOICENET
+  URL:         https://github.com/naiveHobo/InvoiceNet
+  Description: Deep neural network to extract intelligent information from
+               invoice documents. Easy-to-use UI for PDF/JPG/PNG invoices.
+               Custom model training.
+
+INVOICE PROCESSING (GPT-4o)
+  URL:         https://github.com/ruizguille/invoice-processing
+  Description: Automated invoice processing using Python, GPT-4o, and Pandas.
+               Processes multiple PDFs, extracts info, performs financial
+               analysis, generates Excel reports.
+
+FIREFLY III
+  URL:         https://github.com/firefly-iii/firefly-iii
+  Description: Self-hosted personal finances manager. Track expenses/income,
+               budgets, categories, tags. Many financial reports. Widely used.
+
+FINSIGHT AI EXPENSE TRACKER
+  URL:         https://github.com/olapuajay/FinSight_AI_Expense_Tracker
+  Description: Full-stack finance platform with AI-powered insights, real-time
+               notifications, intelligent reporting for spending behavior.
+
+================================================================================
+8. AI LEGAL / COMPLIANCE
+================================================================================
+
+MIKE (Open-Source Legal AI Platform)
+  URL:         https://github.com/willchen96/mike
+  Stars:       1,000+ (in 72 hours -- most for any legal tech project ever)
+  License:     AGPL v3
+  Description: Open-source legal AI platform by former Latham & Watkins lawyer.
+               Performs document review, creation, editing, project management,
+               tabular review (extracts data from hundreds of documents in
+               parallel with citations). Rivals Harvey and Legora. Free
+               beyond LLM token costs.
+
+OPENCONTRACTS
+  URL:         https://github.com/Open-Source-Legal/OpenContracts
+  Description: Self-hosted document annotation, version control, semantic
+               search, and MCP. Humans and AI agents building knowledge bases
+               together. Since 2019.
+
+AI LEGAL CLAUDE
+  URL:         https://github.com/zubair-trabzada/ai-legal-claude
+  Description: AI Legal Assistant skill for Claude Code. Contract review, risk
+               analysis, NDA generation, compliance auditing, negotiation
+               strategy, PDF reports. 14 skills, 5 parallel agents.
+
+CONTRACT ANALYZER
+  URL:         https://github.com/ahmetkumass/contract-analyzer
+  Description: Open-source tool for extracting and analyzing key information
+               from legal contracts and documents.
+
+ALLY LEGAL ASSISTANT (Azure)
+  URL:         https://github.com/Azure-Samples/ally-legal-assistant
+  Description: AI Contract Assistant Word plugin using Azure OpenAI. Contract
+               analysis, real-time Q&A, auto-markup for legal professionals.
+
+LEGAL AI PROJECT
+  URL:         https://github.com/OssamaLouati/Legal-AI_Project
+  Description: Automated Legal Document Analysis Platform using Next.js, NLP,
+               and ML models. Extracts information and identifies risks.
+
+AWESOME LEGALTECH
+  URL:         https://github.com/Vaquill-AI/awesome-legaltech
+  Description: Curated list of LegalTech resources -- open source platforms,
+               AI models, MCP servers, companies, datasets, and tools.
+
+COMP AI (Compliance Platform)
+  URL:         https://github.com/trycompai/comp
+  Description: AI-native platform for company compliance. SOC 2, ISO 27001,
+               HIPAA, GDPR. Open-source alternative to Vanta and Drata.
+
+COMPL-AI
+  URL:         https://github.com/compl-ai/compl-ai
+  Description: Open-source compliance-centered evaluation framework for
+               Generative AI models. Technical interpretation of EU AI Act.
+
+================================================================================
+9. AI DATA ANALYSIS / BI / TEXT-TO-SQL
+================================================================================
+
+VANNA AI
+  URL:         https://github.com/vanna-ai/vanna
+  Description: Chat with your SQL database. Accurate Text-to-SQL generation via
+               LLMs using agentic retrieval. Enterprise security and
+               user-aware permissions.
+
+WREN AI
+  URL:         https://github.com/Canner/WrenAI
+  Description: Open context layer that gives AI agents grounded, governed SQL
+               across 20+ data sources. Semantic modeling layer for accurate
+               text-to-SQL.
+
+MINDSDB
+  URL:         https://github.com/mindsdb/mindsdb
+  Description: AI Data Vault -- query engine for AI Agents to securely query
+               data from any datasource. Connect, Unify, Respond workflow.
+
+ALTIMATE CODE
+  URL:         https://github.com/AltimateAI/altimate-code
+  Description: Open-source agentic data engineering harness for dbt, SQL, and
+               cloud warehouses. 100+ tools, 10 warehouses, AI-powered.
+               Data diff, MSSQL/Fabric support, Databricks AI Gateway.
+
+QUERYCRAFT AI
+  URL:         https://github.com/abhi9720/querycraft-ai
+  Description: Open-source multi-agent AI system turning plain English into
+               optimized SQL queries with explanations. Bridges complex
+               schemas and natural language.
+
+SQL AGENT
+  URL:         https://github.com/empower-ai/sql-agent
+  Description: AI Agent for data analytics with natural language. Translates
+               queries and fetches data.
+
+================================================================================
+10. AI PROJECT MANAGEMENT & OPERATIONS
+================================================================================
+
+AGENTIC PROJECT MANAGEMENT (APM)
+  URL:         https://github.com/sdi2200262/agentic-project-management
+  Description: Open-source framework for managing software projects with AI
+               assistants. Different AI agents handle planning, coordination,
+               and execution as a team. Supports Claude Code, Codex CLI,
+               Cursor, GitHub Copilot, Gemini CLI, OpenCode.
+
+PLEXO
+  URL:         https://github.com/minskylab/plexo-core
+  Description: Open-source project management platform with AI. Simplifies
+               task tracking within projects and teams. Can autonomously
+               generate tasks necessary for project completion.
+
+SYMPHONY (OpenAI)
+  URL:         Referenced above in section 2
+  Description: Agent orchestrator that turns project-management boards into
+               control planes for coding agents.
+
+================================================================================
+11. AI MEETING & DOCUMENTATION
+================================================================================
+
+MEETILY
+  URL:         https://github.com/Zackriya-Solutions/meeting-minutes
+  Description: Privacy-first AI meeting assistant. 4x faster Parakeet/Whisper
+               live transcription, speaker diarization, Ollama summarization.
+               Built on Rust. 100% local processing, no cloud required.
+               For macOS and Windows.
+
+RECAP
+  URL:         https://github.com/RecapAI/Recap
+  Description: Open-source, privacy-focused, macOS-native meeting summarizer.
+               Uses WhisperKit + Ollama/OpenRouter. Summarizes audio from any
+               app, not just meetings.
+
+AI-POWERED MEETING SUMMARIZER
+  URL:         https://github.com/AlexisBalayre/AI-Powered-Meeting-Summarizer
+  Description: Gradio-powered app converting audio recordings to transcripts
+               and summaries using whisper.cpp and Ollama.
+
+================================================================================
+12. AI VOICE & CALL CENTER
+================================================================================
+
+PIPECAT
+  URL:         https://github.com/pipecat-ai/pipecat
+  Description: Open-source framework for voice and multimodal conversational
+               AI. Customer intake, support bots, guided flows.
+
+MICROSOFT CALL CENTER AI
+  URL:         https://github.com/microsoft/call-center-ai
+  Description: Send a phone call from AI agent in an API call. Customizable
+               prompts, feature flags, human agent fallback, call recording.
+               Azure serverless architecture.
+
+BOLNA
+  URL:         https://github.com/bolna-ai/bolna
+  Description: Open-source platform for conversational voice AI agents.
+               Managed hosted offerings available.
+
+AI-VOICE-AGENT
+  URL:         https://github.com/Anil-matcha/AI-Voice-Agent
+  Description: Self-hosted AI agent handling voice calls with real-time
+               responses. For sales calls and customer support.
+
+AI-POWERED CALL CENTER INTELLIGENCE
+  URL:         https://github.com/ReverendBayes/AI-Powered-Call-Center-Intelligence
+  Description: Real-time behavioral intelligence. Transcribes calls, redacts
+               PII, extracts emotional tone, classifies issues. GPT-3.5,
+               Whisper, DuckDB, React+TypeScript. No vendor lock-in.
+
+================================================================================
+13. MULTI-AGENT BUSINESS SIMULATIONS
+================================================================================
+
+AGENTVERSE
+  URL:         https://github.com/OpenBMB/AgentVerse
+  Description: Deployment of multiple LLM-based agents for task-solving and
+               simulation. Custom environments to observe multi-agent
+               behaviors.
+
+GPTEAM
+  URL:         https://github.com/101dotxyz/GPTeam
+  Description: Open-source multi-agent simulation. Agents with memory interact
+               using communication as a tool. Agents move around a world and
+               perform tasks in different locations.
+
+GENERATIVE AGENTS
+  URL:         https://github.com/joonspk-research/generative_agents
+  Description: "Generative Agents: Interactive Simulacra of Human Behavior" --
+               Stanford research. The foundational paper on agent simulations.
+
+================================================================================
+14. INDUSTRY-SPECIFIC AI SYSTEMS
+================================================================================
+
+--- REAL ESTATE ---
+
+AI REAL ESTATE ASSISTANT
+  URL:         https://github.com/AleksNeStu/ai-real-estate-assistant
+  Description: Advanced AI Real Estate Assistant using RAG, LLMs, Python.
+               Market analysis, property valuation, intelligent search.
+
+REALTOR-AI
+  URL:         https://github.com/saminkhan1/realtor-ai
+  Description: Automates client interactions, property inquiries, appointment
+               scheduling. Google Calendar integration, multi-platform (chat
+               widget, text, phone). 24/7 operation.
+
+REAL ESTATE AI AGENT (Bright Data)
+  URL:         https://github.com/brightdata/real-estate-ai-agent
+  Description: Extracts real estate property data as structured JSON using AI
+               agents, Nebius Qwen LLM, and Bright Data MCP.
+
+--- EDUCATION ---
+
+DEEPTUTOR
+  URL:         https://github.com/HKUDS/DeepTutor
+  License:     Apache-2.0
+  Description: Agent-native personalized learning assistant. Six modes: Chat,
+               Deep Solve, Quiz Generation, Deep Research, Math Animator,
+               Visualize. Sharing context across modes.
+
+TUTOR-GPT
+  URL:         https://github.com/plastic-labs/tutor-gpt
+  Description: LLM-powered learning companion by Plastic Labs. Dynamically
+               reasons about learning needs and updates its own prompts.
+
+OPEN TUTORAI
+  URL:         https://github.com/Open-TutorAi/open-tutor-ai-CE
+  Description: Open-source educational platform based on LLMs. Dynamic
+               personalized tutoring, AI-generated tutors, customizable 3D
+               avatars, course organization, integrated feedback.
+
+OATUTOR
+  URL:         https://github.com/CAHLR/OATutor-LLM-Learner
+  Description: Open-source Adaptive Tutoring System. Bayesian Knowledge
+               Tracing for skill mastery estimation. React JS.
+
+================================================================================
+15. CURATED AWESOME LISTS & META-RESOURCES
+================================================================================
+
+AWESOME AI AGENTS 2026
+  URL:         https://github.com/caramaschiHG/awesome-ai-agents-2026
+  Description: 300+ resources across 20+ categories. Updated monthly.
+               The most comprehensive list for 2026.
+
+500 AI AGENTS PROJECTS
+  URL:         https://github.com/ashishpatel26/500-AI-Agents-Projects
+  Description: Curated collection of AI agent use cases across all industries:
+               healthcare, finance, education, retail, and more. Links to
+               open-source implementations.
+
+AWESOME AGENTS (Kyrolabs)
+  URL:         https://github.com/kyrolabs/awesome-agents
+  Description: Awesome list of AI Agents. Includes PraisonAI, Astron, and
+               enterprise-grade frameworks.
+
+AWESOME AI AGENTS (Slavakurilyak)
+  URL:         https://github.com/slavakurilyak/awesome-ai-agents
+  Description: 300+ agentic AI resources. Beam AI, Relevance AI BDR Agent,
+               and more.
+
+AWESOME AI AGENTS (Jim Schwoebel)
+  URL:         https://github.com/jim-schwoebel/awesome_ai_agents
+  Description: Comprehensive list of 1,500+ resources and tools related to
+               AI agents.
+
+AI AGENT PLATFORMS & AUTOMATION TOOLS
+  URL:         https://github.com/rembertdesigns/AI-Agent-Platforms-Automation-Tools
+  Description: Community-curated directory of autonomous AI agents, frameworks,
+               platforms, and automation tools.
+
+AWESOME AI AGENT FRAMEWORKS
+  URL:         https://github.com/axioma-ai-labs/awesome-ai-agent-frameworks
+  Description: Curated most up-to-date list of AI Agent Frameworks.
+
+AWESOME DEVINS
+  URL:         https://github.com/e2b-dev/awesome-devins
+  Description: Curated list of Devin-inspired AI coding agents.
+
+AWESOME AI-DRIVEN DEVELOPMENT
+  URL:         https://github.com/eltociear/awesome-AI-driven-development
+  Description: Awesome list of AI-Driven Development tools and resources.
+
+AWESOME AI CODING TOOLS
+  URL:         https://github.com/ai-for-developers/awesome-ai-coding-tools
+  Description: Curated list of AI-powered coding tools.
+
+AWESOME SWARMS LIST
+  URL:         https://github.com/The-Swarm-Corporation/Awesome-Swarms-List
+  Description: Curated list of applications, tools, and resources for the
+               Swarms framework.
+
+AWESOME LANGGRAPH
+  URL:         https://github.com/von-development/awesome-LangGraph
+  Description: Index of the LangChain + LangGraph ecosystem: concepts,
+               projects, tools, templates, and guides.
+
+AWESOME OPEN-SOURCE AI
+  URL:         https://github.com/alvinreal/awesome-opensource-ai
+  Description: Curated list of the best truly open-source AI projects, models,
+               tools, and infrastructure.
+
+AWESOME COMPLIANCE
+  URL:         https://github.com/getprobo/awesome-compliance
+  Description: Curated list of tools, frameworks, and resources for IT
+               compliance, security standards, and regulatory requirements.
+
+================================================================================
+16. AI WORKFLOW AUTOMATION PLATFORMS (NO-CODE / LOW-CODE)
+================================================================================
+
+N8N
+  URL:         https://github.com/n8n-io/n8n
+  Stars:       162,000-180,000+
+  Description: Open-source workflow automation platform. Visual no-code
+               interface + custom code flexibility. Native AI capabilities.
+               400+ integrations. Fair-code license. Free Zapier/Make
+               alternative.
+
+DIFY
+  URL:         https://github.com/langgenius/dify
+  Stars:       90,000+
+  Description: Production-ready platform for agentic AI workflows. Visual
+               drag-and-drop interface, built-in RAG pipelines, 100+ LLM
+               providers, observability dashboard. All-in-one toolchain to
+               build, deploy, and manage AI applications.
+
+BROWSER USE
+  URL:         https://github.com/browser-use/browser-use
+  Stars:       78,000-91,000+
+  Description: #1 open-source browser automation platform. Makes websites
+               accessible for AI agents. Automate tasks online. Trusted by
+               Fortune 500 companies.
+
+================================================================================
+17. AI BROWSER AUTOMATION AGENTS
+================================================================================
+
+BROWSER USE WEB UI
+  URL:         https://github.com/browser-use/web-ui
+  Description: Run AI Agent in your browser.
+
+STEEL BROWSER
+  URL:         https://github.com/steel-dev/steel-browser
+  Description: Open source Browser API for AI Agents. Batteries-included
+               browser sandbox. Automate the web without infrastructure worry.
+
+HYPERAGENT
+  URL:         https://github.com/hyperbrowserai/HyperAgent
+  Description: AI browser automation agent.
+
+VERCEL AGENT BROWSER
+  URL:         https://github.com/vercel-labs/agent-browser
+  Description: Browser automation CLI for AI agents by Vercel Labs.
+
+================================================================================
+SUMMARY OF TOP REPOS BY GITHUB STARS
+================================================================================
+
+  ~180K+   n8n (workflow automation)
+  ~91K+    Browser Use (web automation)
+  ~90K+    Dify (AI workflow platform)
+  ~70K+    OpenHands (AI software engineer)
+  ~67K+    MetaGPT (AI software company)
+  ~50K+    AutoGen (multi-agent framework)
+  ~43K+    Paperclip (zero-human company)
+  ~39K+    Swarms (multi-agent orchestration)
+  ~27K+    CrewAI (agent orchestration)
+  ~21K+    Chatwoot (customer support)
+  ~10K+    Agency Agents (AI agency replacement)
+  ~10K+    Devika (AI software engineer)
+  ~2.8K    FinGPT (financial LLMs)
+  ~1.1K    FinRobot (financial analysis)
+  ~1K+     Mike (legal AI platform)
+
+================================================================================
+END OF RESEARCH
+================================================================================

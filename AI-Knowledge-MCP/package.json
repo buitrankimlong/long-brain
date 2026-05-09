@@ -1,0 +1,16 @@
+{
+  "name": "ai-knowledge-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for AI Knowledge Vault - search, read, and update knowledge",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  }
+}
