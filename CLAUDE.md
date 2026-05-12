@@ -61,3 +61,9 @@ Sau mỗi milestone quan trọng (hoàn thành feature, fix bug lớn, deploy):
 - Mỗi agent PHẢI có file boundaries rõ ràng (tránh conflict)
 - Knowledge mới PHẢI có: concept + code example + best practices
 - Không lưu rác: chỉ lưu kiến thức đã validate, có giá trị tái sử dụng
+
+## MCP SERVER (Longbrain)
+- Server: `mcp-server/server.js` (trong repo này)
+- Auto-connect: `.mcp.json` ở repo root
+- Nếu tools không có: `cd mcp-server && npm install` rồi restart Claude Code
+- Setup guide: xem `MCP-SETUP.md`

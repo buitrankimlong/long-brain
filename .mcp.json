@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "longbrain": {
+      "command": "node",
+      "args": ["mcp-server/server.js"],
+      "env": {
+        "AI_KNOWLEDGE_VAULT": "."
+      }
+    }
+  }
+}

@@ -1,163 +1,138 @@
-# Second Brain System
+# 🧠 Longbrain — Second Brain AI System
 
-Hệ thống "Bộ Não Thứ 2" cho developer dùng Claude Code. Tự động tìm kiếm, lưu trữ và đúc kết kiến thức qua mọi dự án.
-
----
-
-## Lợi ích
-
-**Không bao giờ quên**
-- Mọi kiến thức, dự án, bài học đều được lưu lại vĩnh viễn
-- Lần sau gặp vấn đề tương tự → tìm ra ngay trong vài giây
-
-**Code nhanh hơn 3-5x**
-- Claude Code tự động tìm kiến thức trong vault TRƯỚC khi code
-- Đã từng build chatbot? → Lấy blueprint cũ, không làm lại từ đầu
-- Nhiều chủ đề cần research? → Nhiều agents chạy song song
-
-**Không mắc lại lỗi cũ**
-- Mỗi lần giải quyết vấn đề → tự động đúc kết bài học
-- Lần sau gặp lại → Claude biết cách tránh ngay
-
-**Dùng ở mọi dự án**
-- MCP Server chạy trên máy, không cần copy gì
-- Mở Claude Code ở bất kỳ folder nào → Second Brain luôn sẵn sàng
-
-**Càng dùng càng thông minh**
-- Tháng đầu: 63 files kiến thức
-- Sau 1 năm: hàng trăm bài học + dự án + kiến thức mới
-- Vault lớn lên theo kinh nghiệm của bạn
+> Bộ não thứ 2 trọn đời. Mọi kiến thức, dự án, bài học đều ở đây.
+> Được truy xuất qua **MCP Server "longbrain"** từ bất kỳ dự án nào.
 
 ---
 
-## Cấu trúc
-
-```
-Second-brain-system/
-│
-├── AI Knowledge Build/           ← Obsidian vault (mở bằng Obsidian)
-│   ├── 00-HOME/Dashboard.md     ← Trang chủ
-│   ├── 01-20 (Knowledge)        ← 20 categories kiến thức AI/tech
-│   └── 30-34 (Life)             ← Dự án, nhật ký, bài học, ý tưởng
-│
-├── AI-Knowledge-MCP/             ← MCP Server (15 tools)
-│   ├── server.js
-│   └── package.json
-│
-├── .claude/agents/               ← 4 custom agents
-│   ├── deep-researcher.md       ← Research sâu, lưu vault
-│   ├── project-analyzer.md      ← Phân tích project lớn
-│   ├── quality-reviewer.md      ← Review chất lượng
-│   └── retrospective.md         ← Đúc kết bài học
-│
-├── research/                     ← 29 files nghiên cứu chi tiết
-├── CLAUDE.md                     ← 5 giao thức hoạt động
-└── REPO-INDEX.md                 ← Danh mục repos tham khảo
-```
-
----
-
-## Cài đặt
-
-### Yêu cầu
-- [Node.js](https://nodejs.org/) >= 18
-- [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code)
-- (Tùy chọn) [Obsidian](https://obsidian.md/) để xem vault đẹp hơn
-
-### Cài tự động bằng Claude Code
-
-Mở terminal, chạy Claude Code, rồi paste prompt sau:
-
-```
-Giúp tôi cài đặt Second Brain System từ repo https://github.com/tom-bdm/Second-brain-system-.git
-
-Làm theo các bước:
-1. Clone repo về C:\AI-Second-Brain (hoặc ~/AI-Second-Brain trên Mac/Linux)
-2. cd vào folder AI-Knowledge-MCP rồi chạy npm install
-3. Tạo file MCP config tại ~/.claude/settings.local.json với nội dung:
-{
-  "mcpServers": {
-    "second-brain": {
-      "command": "node",
-      "args": ["<đường dẫn tới AI-Knowledge-MCP/server.js>"],
-      "env": {
-        "AI_KNOWLEDGE_VAULT": "<đường dẫn tới folder gốc>"
-      }
-    }
-  }
-}
-4. Khởi động lại Claude Code để load MCP server
-5. Test bằng cách gọi tool vault_stats
-```
-
-### Cài thủ công
+## ⚡ Quick Start (3 bước)
 
 ```bash
 # 1. Clone repo
 git clone https://github.com/tom-bdm/Second-brain-system-.git
 cd Second-brain-system-
 
-# 2. Cài dependencies cho MCP server
-cd AI-Knowledge-MCP
-npm install
-cd ..
+# 2. Cài MCP server
+cd mcp-server && npm install && cd ..
 
-# 3. Tạo MCP config (thay đường dẫn cho đúng máy bạn)
-# File: ~/.claude/settings.local.json
+# 3. Mở trong Claude Code → approve MCP prompt → restart session
 ```
 
-```json
-{
-  "mcpServers": {
-    "second-brain": {
-      "command": "node",
-      "args": ["C:\\path\\to\\AI-Knowledge-MCP\\server.js"],
-      "env": {
-        "AI_KNOWLEDGE_VAULT": "C:\\path\\to\\Second-brain-system-"
-      }
-    }
-  }
-}
+**Sau đó dùng ngay:** Claude sẽ có tools `search_knowledge`, `add_learning`, v.v.
+
+---
+
+## 📁 Cấu trúc
+
 ```
-
-```bash
-# 4. Khởi động lại Claude Code
-claude
-
-# 5. Test
-# Nói: "Cho tôi xem vault stats"
+Second-brain-system-/
+├── AI Knowledge Build/          # Vault chính (150+ files)
+│   ├── 00-HOME/                 # Dashboard
+│   ├── 01-AI-FOUNDATIONS/       # Nền tảng AI
+│   ├── 02-AGENT-FRAMEWORKS/     # LangGraph, CrewAI, OpenAI SDK...
+│   ├── 03-LLM-MODELS/           # Models catalog
+│   ├── 04-PROTOCOLS/            # MCP, A2A, function calling
+│   ├── 05-PLATFORMS/            # Chatbot platforms
+│   ├── 06-KNOWLEDGE-MEMORY/     # RAG, vector DB, research
+│   ├── 07-MARKETING/            # Marketing automation
+│   ├── 08-SALES/                # Sales chatbot, CRM
+│   ├── 09-CONTENT-PRODUCTION/   # Video, blog, social
+│   ├── 10-EMAIL-MARKETING/      # Email platforms
+│   ├── 11-SYSTEM-DESIGN/        # Architecture, patterns
+│   ├── 12-DEPLOYMENT/           # Docker, K8s, CI/CD
+│   ├── 13-PACKAGING/            # SaaS, white-label
+│   ├── 14-CLAUDE-CODE/          # Claude Code patterns
+│   ├── 15-OBSIDIAN-BRAIN/       # Second brain systems
+│   ├── 16-VIETNAM-MARKET/       # Zalo, MoMo, VNPay
+│   ├── 17-AI-MODELS-CATALOG/    # AI model pricing
+│   ├── 18-TOOLS-CATALOG/        # Dev tools catalog
+│   ├── 19-BUSINESS-AGENCY/      # Agency business
+│   ├── 20-TRENDS-RESOURCES/     # AI trends 2026+
+│   ├── 30-PROJECTS/             # Dự án đã/đang làm (35+)
+│   ├── 31-JOURNAL/              # Nhật ký làm việc
+│   ├── 32-LEARNINGS/            # Bài học đúc kết (15+)
+│   ├── 33-PEOPLE-CONTACTS/      # Contacts, clients
+│   └── 34-IDEAS/                # Ý tưởng
+├── mcp-server/                  # Longbrain MCP Server
+│   ├── server.js                # Server chính (15 tools)
+│   └── package.json
+├── .claude/agents/              # Custom AI agents (4 agents)
+├── .mcp.json                    # ← Claude Code tự detect file này
+├── CLAUDE.md                    # Hướng dẫn cho AI
+└── MCP-SETUP.md                 # Hướng dẫn kết nối MCP chi tiết
 ```
 
 ---
 
-## Cách sử dụng
+## 🔧 MCP Tools (15 tools)
 
-### Bạn chỉ cần nói bình thường, Claude Code tự biết dùng tools
-
-| Bạn nói | Claude Code làm |
-|---------|----------------|
-| "Tìm cách dùng Lark API" | Tìm trong vault → nếu không có → research web → lưu lại |
-| "Tôi đã từng build chatbot chưa?" | Tìm trong dự án đã lưu |
-| "Lưu lại dự án này" | Ghi lại stack, quyết định, bài học |
-| "Đúc kết bài học hôm nay" | Lưu bài học vào vault |
-| "Build hệ thống X cho khách hàng Y" | Research → phân tích → chia tasks → code → review → đúc kết |
-
-### 5 giao thức tự động
-
-1. **Research-First**: Luôn tìm kiến thức trước khi code
-2. **Parallel Research**: Cần nhiều kiến thức → nhiều agents song song
-3. **Project Decomposition**: Project lớn → chia nhỏ → agents song song
-4. **Quality Gate**: Code xong → review tự động → lọc rác
-5. **Auto-Retrospective**: Xong việc → tự đúc kết bài học
-
-### Mở Obsidian để xem vault
-
-1. Mở Obsidian → Open folder as vault → chọn `AI Knowledge Build`
-2. Xem Graph View để thấy mạng lưới kiến thức
-3. Bắt đầu từ `Dashboard.md`
+| Tool | Mô tả |
+|------|-------|
+| `search_knowledge` | Tìm trong toàn bộ vault |
+| `get_knowledge_file` | Đọc 1 file cụ thể |
+| `get_moc` | Xem tổng quan 1 category |
+| `list_categories` | Liệt kê tất cả categories |
+| `add_knowledge` | Thêm knowledge mới vào vault |
+| `update_knowledge` | Cập nhật file đã có |
+| `add_project` | Ghi lại 1 dự án |
+| `search_projects` | Tìm dự án đã làm |
+| `list_projects` | Liệt kê tất cả dự án |
+| `add_learning` | Ghi bài học rút ra |
+| `search_learnings` | Tìm bài học cũ |
+| `curate_vault` | Phân tích chất lượng vault |
+| `get_project_blueprint` | Blueprint từ dự án cũ |
+| `vault_stats` | Thống kê toàn bộ vault |
+| `get_dashboard` | Đọc Dashboard |
 
 ---
 
-## License
+## 🤖 5 Giao Thức Hoạt Động
 
-Private - Internal use only.
+| # | Giao Thức | Khi nào dùng |
+|---|-----------|--------------|
+| 1 | **Research-First** | Trước khi code bất kỳ kỹ thuật phức tạp nào |
+| 2 | **Parallel Research** | Cần ≥3 chủ đề → spawn agents song song |
+| 3 | **Project Decomposition** | Project ≥5 files → chia batch, agents song song |
+| 4 | **Quality Gate** | Sau khi code/research → review trước khi tiếp |
+| 5 | **Auto-Retrospective** | Sau milestone → tự động đúc kết bài học |
+
+---
+
+## 🎯 Custom Agents
+
+Nằm trong `.claude/agents/`:
+
+- **`deep-researcher`** — Research sâu 1 chủ đề, lưu vào vault
+- **`project-analyzer`** — Phân tích & decompose project lớn
+- **`quality-reviewer`** — Review chất lượng code/knowledge
+- **`retrospective`** — Đúc kết bài học tự động sau milestone
+
+---
+
+## 🔌 MCP Setup Chi Tiết
+
+Xem **[MCP-SETUP.md](./MCP-SETUP.md)** để được hướng dẫn chi tiết.
+
+> **Dành cho AI**: Đọc `MCP-SETUP.md` và thực hiện từng bước để setup cho user.
+
+---
+
+## 📋 Prerequisites
+
+- **Node.js** ≥ 18 ([download](https://nodejs.org))
+- **Claude Code** (CLI)
+- Git
+
+---
+
+## 🤝 Contributing
+
+1. Clone repo
+2. Thêm knowledge vào đúng category (`AI Knowledge Build/XX-CATEGORY/`)
+3. Tên file format: `Topic-Name-Knowledge.md`
+4. Có frontmatter: `tags`, `description`, `created`, `moc`
+5. Push & PR
+
+---
+
+*Built with Claude Code · Powered by Longbrain MCP*
