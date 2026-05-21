@@ -30,3 +30,90 @@ Công cụ cào ảnh Google Images dành cho từ khóa tùy ý (tuỳ người
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+Google Images Scraping Tool.py:
+```python
+import json
+import os
+import time
+import requests
+import io
+import concurrent.futures
+import threading
+import gc  # Garbage Collector để dọn rác bộ nhớ
+from PIL import Image
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# --- CẤU HÌNH ---
+JSON_FILE = "keywords.json"       
+ROOT_DOWNLOAD_DIR = "dataset" 
+MAX_IMAGES_PER_QUERY = 300         
+MIN_SIZE = 720                    
+
+count_lock = threading.Lock()
+
+def download_and_check(url, download_path, shared_counter_list, min_size=720):
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        response = requests.get(url, headers=headers, timeout=10) # Tăng timeout lên 10s
+        img_data = response.content
+        
+        try:
+            image = Image.open(io.BytesIO(img_data))
+        except:
+            return 
+
+        width, height = image.size
+        
+        if width >= min_size or height >= min_size:
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+
+            with count_lock:
+                current_idx = shared_counter_list[0]
+                filename = f"image_{current_idx}.jpg"
+                save_path = os.path.join(download_path, filename)
+                
+                with open(save_path, "wb") as f:
+                    f.write(img_data)
+                
+                shared_counter_list[0] += 1
+                print(f"[OK] Đã lưu: {filename} ({width}x{height}px)")
+        else:
+            pass
+    except Exception as e:
+        pass
+
+def scrape_query_logic(driver, query, download_path, shared_counter_list, max_images):
+    print(f"\n--- Đang xử lý Search: '{query}' ---")
+    url = f"https://www.google.com/search?tbm=isch&q={query}&tbs=isz:l"
+    try:
+        driver.get(url)
+        # Đợi tối đa 10s
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "img")))
+    except:
+        print("[WARN] Mạng chậm hoặc không tải được trang. Bỏ qua query này.")
+        return
+
+    seen_urls = set()
+    start_index = 0
+    local_download_count = 0 
+    
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+    POSSIBLE_SELECTORS = ["img.YQ4gaf", "img.rg_i", "div[data-ri] img"]
+
+    while local_download_count < max_images:
+        thumbs = []
+        for selector in POSSIBLE_SELECTORS:
+            thumbs = driver.find_elements(By.CSS_SELECTOR, selector)
+            if len(thumbs) > 0:
+```

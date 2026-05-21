@@ -38,3 +38,77 @@ Codebase sạch, full TypeScript strict, 0 errors. 7 pages + 4 features hoàn th
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+App.tsx:
+```typescript
+import React from 'react';
+import { Route, Switch } from 'wouter';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { queryClient } from '@/lib/queryClient';
+import { queryPersister, CACHE_VERSION } from '@/lib/queryPersist';
+import { AuthProvider } from '@/hooks/use-auth';
+import { AdminEditProvider } from '@/contexts/AdminEditContext';
+import { Toaster } from '@/components/ui/toaster';
+import { AppHeader } from './components/layout/AppHeader';
+import { NetworkPage } from './pages/NetworkPage';
+import { FeedPage } from './pages/FeedPage';
+import { OpportunitiesPage } from './pages/OpportunitiesPage';
+import { EventsPage } from './pages/EventsPage';
+import { AuthPage } from './pages/AuthPage';
+import { AuthCallbackPage } from './pages/AuthCallbackPage';
+import ProfilePage from './pages/profile-page';
+
+function AppShell() {
+  return (
+    <div className="bg-white text-gray-900 font-sans h-[100dvh] flex flex-col overflow-hidden antialiased">
+      <AppHeader />
+
+      <main className="flex flex-1 overflow-hidden">
+        <section className="flex-1 flex flex-col bg-gray-50 overflow-y-auto relative no-scrollbar">
+          <Switch>
+            <Route path="/" component={NetworkPage} />
+            <Route path="/feed" component={FeedPage} />
+            <Route path="/opportunities" component={OpportunitiesPage} />
+            <Route path="/events" component={EventsPage} />
+            <Route path="/profile" component={ProfilePage} />
+            <Route path="/auth/callback" component={AuthCallbackPage} />
+            <Route path="/auth">
+              <AuthPage />
+            </Route>
+            <Route component={NetworkPage} />
+          </Switch>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: queryPersister,
+        // Cache hết hạn 24h — sau đó re-fetch tự động
+        maxAge: 24 * 60 * 60 * 1000,
+        // Bust cache khi bump CACHE_VERSION hoặc schema thay đổi
+        buster: CACHE_VERSION,
+        // Chỉ persist query success, không persist error hoặc pending
+        dehydrateOptions: {
+          shouldDehydrateQuery: (query) => query.state.status === 'success',
+        },
+      }}
+    >
+      <AuthProvider>
+        <AdminEditProvider>
+          <AppShell />
+          <Toaster />
+        </AdminEditProvider>
+      </AuthProvider>
+    </PersistQueryClientProvider>
+  );
+}
+```

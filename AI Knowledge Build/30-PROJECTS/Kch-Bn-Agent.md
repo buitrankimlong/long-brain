@@ -29,3 +29,90 @@ main.py khởi động bot. Khi nhận link YouTube: fetch nội dung video (via
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+main.py:
+```python
+# main.py - Entry point, chạy Telegram bot lắng nghe YouTube link
+
+import asyncio
+import logging
+import os
+import re
+from datetime import datetime
+
+from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+)
+
+from gemini_client import ConversationManager, API_DELAY
+from parser import parse_sections
+
+# Cấu hình logging với timestamp
+logging.basicConfig(
+    format="[%(asctime)s] %(levelname)s - %(name)s - %(message)s",
+    level=logging.INFO,
+)
+logger = logging.getLogger(__name__)
+
+# Load biến môi trường
+load_dotenv()
+
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
+
+# Regex nhận diện YouTube URL
+YOUTUBE_REGEX = re.compile(
+    r"(https?://)?(www\.)?"
+    r"(youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/)"
+    r"[\w\-]+"
+)
+
+
+def is_authorized(update: Update) -> bool:
+    """Kiểm tra user có được phép sử dụng bot không."""
+    return update.effective_user.id == TELEGRAM_USER_ID
+
+
+def build_output_header(youtube_url: str, total_sections: int) -> str:
+    """Tạo header cho file output.txt."""
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return (
+        f"=====================================\n"
+        f"VIDEO: {youtube_url}\n"
+        f"NGÀY TẠO: {now}\n"
+        f"TỔNG SỐ PHẦN: {total_sections}\n"
+        f"=====================================\n\n"
+    )
+
+
+def build_section_block(phan_so: str, timestamp: str, ten_phan: str, content: str) -> str:
+    """Tạo block cho 1 phần trong file output."""
+    return (
+        f"==================================================\n"
+        f"{phan_so}: [{timestamp}] - {ten_phan}\n"
+        f"==================================================\n"
+        f"{content}\n\n"
+    )
+
+
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handler cho lệnh /start."""
+    if not is_authorized(update):
+        return
+    await update.message.reply_text(
+        "🎬 Gửi link YouTube để bắt đầu phân tích video.\n"
+        "Bot sẽ tự động phân cảnh và phân tích chi tiết từng phần."
+    )
+
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+```

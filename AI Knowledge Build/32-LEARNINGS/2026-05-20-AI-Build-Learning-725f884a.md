@@ -1,0 +1,168 @@
+---
+tags: [auto-learning, longbrain]
+date: 2026-05-20
+session: 725f884a
+cwd: C:\AI Build Learning
+---
+
+# Auto-Learnings — AI Build Learning — 2026-05-20
+
+> Session: `725f884a` | Generated: 2026-05-20 17:20:21 | Items: 11
+
+---
+
+## Mục tiêu session
+- Bây giờ chúng ta sẽ bắt đầu dọn dẹp và sắp xếp lại mọi thứ trên laptop của tôi. Trước tiên hãy deep resaerch xem các chuyên gia họ sắp xếp các folder, data, .... mọi thứ như thế nào.
+
+## Files đã thay đổi
+- `Edit` → `C:\Users\buitr\.claude\projects\C--AI-Build-Learning\memory\MEMORY.md`
+
+## Longbrain tools đã dùng
+- `add_knowledge`: Personal-Computer-Organization-Expert-Guide-2026
+- `add_learning`: Dọn dẹp và sắp xếp Laptop — Hybrid PARA + Johnny Decimal
+- `add_project`: Content-Tracker-Multi-Platform
+- `add_project`: Fanpage-Monitor-Repost
+- `add_project`: He-Thong-Thuy-Canh-IoT
+- `add_project`: AI-Research-VN-TikTok-Digest
+- `add_project`: Extractor-Async-Pipeline
+- `add_project`: Facebook-Auto-Post-Telegram-Bot
+- `add_project`: Thue-Luat-Kinh-Doanh-Auto-Post
+- `add_project`: AI-Assistant-Agent-Openclaw
+
+---
+
+## [BashSuccess] # Read Tro-Ly-Kim config.py (already have main.py) TLK_CONFI
+
+**Command:** `# Read Tro-Ly-Kim config.py (already have main.py)`
+**Result:** UPDATED: Tr-L-Kim.md with real source code from PC nhà
+
+---
+
+## [BugFix] Fix exit code 1: powershell -Command "Get-PSDrive
+
+**Problem:** Exit code 1
+At line:1 char:85
++ ... Object Used,Free | ForEach-Object { 'Used: ' + [math]::Round(extglob. ...
++                                                                  ~
+Missing ')' in method call.
+At line:1 char:85
++ ...  | ForEach-...
+**Fix command:** `powershell -NoProfile -Command 'Get-PSDrive C | ForEach-Object { Write-Host ("Used: {0:N1} GB, Free: {1:N1} GB" -f ($_.Used/1GB), ($_.Free/1GB)) }'`
+
+---
+
+## [BugFix] Fix error in: REPO="/c/04-Projects/github-projects-repo" # === 0
+
+**Problem:** === Copying to 01-scraping-tools ===
+SKIP: flashscore-scraper (not found or already exists)
+SKIP: soccer-data-analytic (not found or already exists)
+FAIL: web-scraping
+FAIL: image-scraper
+FAIL: tool-scrape-images
+FAIL: scraping-tech
+FAIL: hosocong...
+**Fix command:** `# rsync might not be available on Windows Git Bash. Let me use cp instead with manual excludes
+REPO="/c/04-Projects/github-projects-repo"
+
+copy_projec`
+
+---
+
+## [BugFix] Fix error in: cat "/c/04-Projects/active/fanpage-monitor-repost/
+
+**Problem:** """
+Facebook Fanpage Monitor - Entry point.
+
+Usage:
+  python main.py              # Chay monitor loop
+  python main.py --setup      # Tao session (login Facebook)
+  python main.py --scrape URL # Scrape 1 fanpage (test)
+  python main.py --status   ...
+**Solution:** Giờ tôi sẽ add các projects quan trọng nhất vào Longbrain với source code thật.
+
+---
+
+## [BugFix] Fix exit code 1: # Check if
+
+**Problem:** Exit code 1
+1
+---
+## Source Code
+
+ai_digest.py:
+```python
+"""AI Daily Digest — 30+ RSS feeds → DeepSeek → Top 3 → Telegram"""
+import feedparser, requests, json, time
+from datetime import datetime, timezone, timedelta
+from concurrent.futures import...
+**Fix command:** `# Better check: which projects have actual code in Source Code section
+VAULT="/c/AI Build Learning/AI Knowledge Build/30-PROJECTS"
+echo "=== PROJECTS `
+
+---
+
+## [BugFix] Fix exit code 1: # Check openclaw
+
+**Problem:** Exit code 1
+**Fix command:** `# Escape powershell properly for SSH
+ssh buitr@100.87.190.39 'powershell -Command "Get-ChildItem C:\openclaw -Directory | ForEach-Object { $_.Name }"'`
+
+---
+
+## [Decision] - Downloads `_sorted-*` folders — bạn review rồi q...
+
+**Decision:** - Downloads `_sorted-*` folders — bạn review rồi quyết định keep/delete
+**Context:** - `C:\Abuss\` — 2 folders bị lock (admin-panel, ai-system-v2) → xóa sau khi restart | - Agents background sẽ tự hoàn thành việc learn vào Longbrain
+
+---
+
+## [Decision] Khi nào bạn muốn, có thể xóa `C:\Abuss\` gốc (chỉ ...
+
+**Decision:** Khi nào bạn muốn, có thể xóa `C:\Abuss\` gốc (chỉ còn 2 folders lock) vì bản copy đã đầy đủ — nhưng tôi sẽ **không tự ý xóa**, chờ bạn quyết định.
+
+---
+
+## [Learning] | 6 | Cập nhật Git remotes nếu cần | 10 phút |
+
+**Insight:** | 6 | Cập nhật Git remotes nếu cần | 10 phút |
+
+---
+
+## [Config] Config file
+
+**Command:** `powershell -NoProfile -Command 'Get-PSDrive C | ForEach-Object { Write-Host ("Used: {0:N1} GB, Free: {1:N1} GB" -f ($_.Used/1GB), ($_.Free/1GB)) }'`
+**Config:**
+```
+Used: 340.0 GB, Free: 134.7 GB
+```
+
+---
+
+## [Config] Config: desktop.ini
+
+**Command:** `# Tinh Bao AI Website didn't move - target already exists from earlier. Let me check
+ls "/c/04-Projects/active/" | grep tinh
+echo "---"
+# The original`
+**Config:**
+```
+tinh-bao-ai-facebook-agent
+---
+OK: Tinh Bao AI merged and removed
+OK: Removed 'Cac du an code lam viec'
+=== FINAL C:\ structure ===
+/c/$Recycle.Bin/
+/c/01-Work/
+/c/02-Freelance/
+/c/03-University/
+/c/04-Projects/
+/c/05-Data/
+/c/06-Resources/
+/c/99-Archive/
+/c/Abuss/
+/c/AI Build Learning/
+/c/System Volume Information/
+```
+
+---
+> Auto-generated by longbrain-stop-hook v2.0 | [[32 Bai Hoc Duc Ket]]

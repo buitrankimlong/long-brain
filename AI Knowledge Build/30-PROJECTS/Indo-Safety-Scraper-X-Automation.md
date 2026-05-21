@@ -30,3 +30,89 @@ Full automation tool X scraping + media download + Excel export + Telegram notif
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+dona.py:
+```python
+import json
+import os
+import sanitize_filename
+import time
+
+# Import các module của bạn
+try:
+    import scrape_X
+    import downloader_X
+    import tele_alert
+except ImportError as e:
+    print(f"❌ Thiếu module: {e}")
+    exit()
+
+def main():
+    print("=== TOOL CRAWL PROFILE (BACKTEST SYSTEM) ===")
+    
+    # 1. Thiết lập đường dẫn
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(base_dir, 'users.json') # Đổi tên file đọc
+
+    # 2. Kiểm tra và tạo file mẫu nếu chưa có
+    if not os.path.exists(json_path):
+        sample_data = [{"username": "realDonaldTrump", "targets": 1000}]
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(sample_data, f, indent=4)
+        print(f"⚠️ Đã tạo file mẫu {json_path}. Hãy điền user cần cào và chạy lại.")
+        return
+
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            users_list = json.load(f)
+    except Exception as e:
+        print(f"❌ Lỗi đọc file JSON: {e}")
+        return
+
+    tele_alert.send_telegram_message(f"🚀 **START PROFILES CRAWL**\nSố lượng User: {len(users_list)}")
+
+    # 3. Vòng lặp xử lý từng User
+    for task in users_list:
+        user = task.get('username', '').replace("@", "").strip() # Lọc bỏ chữ @ nếu lỡ tay điền
+        limit = task.get('targets', 1000)
+        
+        if not user: continue
+
+        # --- KỸ THUẬT QUAN TRỌNG ---
+        # Để chỉ lấy bài viết CỦA user đó (không lấy bài người khác nhắc đến user),
+        # ta dùng cú pháp "from:username".
+        # Đây là cách chính xác nhất để giả lập việc vào trang cá nhân.
+        search_query = f"from:{user}"
+        
+        # Tạo tên thư mục gọn gàng
+        folder_name = f"Profile_{user}"
+        
+        base_folder = os.path.join(base_dir, "Output", folder_name)
+        excel_file = os.path.join(base_folder, f"Timeline_{user}.xlsx")
+        
+        os.makedirs(base_folder, exist_ok=True)
+
+        print(f"\n────────────────────────────────────────")
+        print(f"👤 USER: @{user}")
+        print(f"🔎 MODE: Profile Timeline Scan")
+        print(f"📊 TARGET: {limit} tweets")
+        
+        tele_alert.send_telegram_message(f"👤 Đang vào trang cá nhân: `@{user}`...")
+
+        try:
+            # Gọi hàm scrape với query đã được chuẩn hóa thành dạng Profile
+            scrape_X.run_scraper(search_query, limit, excel_file)
+            
+            if os.path.exists(excel_file):
+                print(f"✅ Đã lưu dữ liệu lịch sử vào: {excel_file}")
+                tele_alert.send_telegram_message(f"✅ Xong user `@{user}`. File Excel đã sẵn sàng.")
+            else:
+                print("⚠️ Cảnh báo: Không tạo được file Excel.")
+
+        except Exception as e:
+            print(f"❌ Lỗi: {e}")
+            tele_alert.send_telegram_message(f"❌ Lỗi khi cào `@{user}`: {e}")
+```

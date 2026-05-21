@@ -31,3 +31,89 @@ Hệ thống cào trận đấu từ Flashscore.com với khả năng matching t
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+03_main_production.py:
+```python
+import os
+import time
+import csv
+import pandas as pd
+import traceback
+from tqdm import tqdm
+from colorama import init, Fore, Style
+
+# Selenium
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+
+# Logic
+from modules.parser_logic import FlashscoreParser
+
+init(autoreset=True)
+
+# ================= CONFIGURATION =================
+INPUT_FILE = os.path.join("input", "match_urls.csv")
+OUTPUT_FILE = os.path.join("output", "final_data.csv")
+HISTORY_PER_GAME = 25 # Total historical matches to crawl per target match
+
+# Define columns for CSV
+CSV_COLUMNS = [
+    "Match_Type", "Match_Link", "Parent_Match", 
+    "Date", "League", "Round", 
+    "Home_Team", "Away_Team", "Score_Home", "Score_Away",
+    # Common Stats (Will be filled if available)
+    "Expected Goals (xG)_Home", "Expected Goals (xG)_Away",
+    "Ball Possession_Home", "Ball Possession_Away",
+    "Goal Attempts_Home", "Goal Attempts_Away",
+    "Shots on Goal_Home", "Shots on Goal_Away",
+    "Corner Kicks_Home", "Corner Kicks_Away",
+    "Offsides_Home", "Offsides_Away",
+    "Fouls_Home", "Fouls_Away"
+]
+
+# ================= HELPER FUNCTIONS =================
+
+def setup_driver():
+    opts = webdriver.ChromeOptions()
+    opts.add_argument('--start-maximized')
+    opts.add_argument('--disable-notifications')
+    opts.add_argument('--disable-blink-features=AutomationControlled')
+    opts.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+    # opts.add_argument('--headless') # Enable for true production run if desired
+    
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
+    return driver
+
+def handle_cookies(driver):
+    try:
+        wait = WebDriverWait(driver, 3)
+        btn = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
+        btn.click()
+        time.sleep(1)
+    except: pass
+
+def click_element_js(driver, elem):
+    driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", elem)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", elem)
+
+def click_tab(driver, tab_identifiers):
+    """Robust tab clicker (Text or Href)"""
+    wait = WebDriverWait(driver, 5)
+    for ident in tab_identifiers:
+        try:
+            xpath = f"//a[contains(@href, '{ident}')] | //button[contains(text(), '{ident}')] | //a[contains(text(), '{ident}')]"
+            elem = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+            click_element_js(driver, elem)
+            time.sleep(2)
+            return True
+        except: continue
+    return False
+```

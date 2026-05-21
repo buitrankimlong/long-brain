@@ -30,3 +30,9 @@ Hệ thống cào ảnh từ Google Images bằng Selenium với hỗ trợ 16 n
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+> **NOTE:** Folder chỉ chứa ảnh đã download. Source code có thể đã trên PC nhà.
+> Cần SSH vào PC nhà (100.87.190.39) để lấy source code.

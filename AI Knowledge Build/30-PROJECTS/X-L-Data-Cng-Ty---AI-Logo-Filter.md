@@ -30,3 +30,89 @@ Logo filter hoàn thành. Analyze 1000s logos → filter_report.json. Quality: g
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+build_import.js:
+```javascript
+const fs = require('fs');
+const path = require('path');
+
+const dataDir = path.join(__dirname, 'data');
+const logosDir = path.join(__dirname, 'logos');
+
+// Build a map: safeFilename(legalName) -> full file path in logos/
+const logoMap = {};
+if (fs.existsSync(logosDir)) {
+  for (const file of fs.readdirSync(logosDir)) {
+    const nameWithoutExt = file.replace(/\.[^.]+$/, '');
+    logoMap[nameWithoutExt] = path.join(logosDir, file);
+  }
+}
+
+const mimeMap = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.ico': 'image/x-icon',
+};
+
+function safeFilename(name) {
+  return name.replace(/[<>:"/\\|?*]/g, '_').replace(/\s+/g, '_').substring(0, 100);
+}
+
+function getLogoDataUrl(taxId) {
+  const filePath = logoMap[taxId];
+  if (!filePath) return null;
+  const data = fs.readFileSync(filePath);
+  const ext = path.extname(filePath).toLowerCase();
+  const mime = mimeMap[ext] || 'image/png';
+  return `data:${mime};base64,${data.toString('base64')}`;
+}
+
+// Read all JSON files
+const companies = JSON.parse(fs.readFileSync(path.join(dataDir, 'company_profiles.json'), 'utf8'));
+const contacts = JSON.parse(fs.readFileSync(path.join(dataDir, 'contacts.json'), 'utf8'));
+const products = JSON.parse(fs.readFileSync(path.join(dataDir, 'products_services.json'), 'utf8'));
+const customers = JSON.parse(fs.readFileSync(path.join(dataDir, 'customers.json'), 'utf8'));
+const cooperations = JSON.parse(fs.readFileSync(path.join(dataDir, 'cooperations.json'), 'utf8'));
+const certificates = JSON.parse(fs.readFileSync(path.join(dataDir, 'certificates.json'), 'utf8'));
+const users = JSON.parse(fs.readFileSync(path.join(dataDir, 'users.json'), 'utf8'));
+
+// Helper: group array by key
+function groupBy(arr, key) {
+  const map = {};
+  for (const item of arr) {
+    const k = item[key] || '_unknown_';
+    if (!map[k]) map[k] = [];
+    map[k].push(item);
+  }
+  return map;
+}
+
+// Build taxId lookup from users.json (businessName -> taxId)
+const usersByBiz = groupBy(users, 'businessName');
+
+// Filter companies: only keep those with taxId from users.json
+// Deduplicate by taxId: keep first occurrence
+const seenTaxIds = new Set();
+const filteredCompanies = [];
+let skippedNoTax = 0;
+let skippedDuplicate = 0;
+
+for (const comp of companies) {
+  const bizName = comp.legalName;
+  const userRaw = (usersByBiz[bizName] || [])[0] || {};
+  const taxId = (userRaw.taxId || '').trim();
+
+  if (!taxId) { skippedNoTax++; continue; }
+  if (seenTaxIds.has(taxId)) { skippedDuplicate++; continue; }
+
+  seenTaxIds.add(taxId);
+  filteredCompanies.push({ comp, userRaw, taxId });
+}
+```

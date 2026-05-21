@@ -156,6 +156,109 @@ function isNewProjectIntent(prompt) {
   return patterns.some(r => r.test(ascii));
 }
 
+// --- Skill/Agent Auto-Router ---
+// Map natural language → skill/agent recommendations
+const SKILL_ROUTES = [
+  // Security
+  { keywords: ["security","bảo mật","xss","injection","owasp","token leak","secret","vulnerability","lỗ hổng"],
+    skill: "security-review", agent: "security-reviewer", label: "Security review & OWASP checklist" },
+  // Build errors
+  { keywords: ["build fail","build error","typescript error","type error","compile","tsc","lỗi build","không build được"],
+    skill: null, agent: "build-error-resolver", label: "Fix build errors (1 lỗi/lần, không refactor oan)" },
+  // Code review
+  { keywords: ["review code","code review","kiểm tra code","xem lại code","review pr","pull request"],
+    skill: null, agent: "typescript-reviewer", label: "Code review với severity levels", command: "/code-review" },
+  // Planning
+  { keywords: ["plan","lên kế hoạch","thiết kế","architecture","kiến trúc","design system","feature mới","tính năng mới"],
+    skill: null, agent: "planner", label: "Implementation plan (Opus, sized phases)", command: "/plan" },
+  // Database
+  { keywords: ["database","postgresql","prisma","migration","schema","query slow","n+1","index","sql"],
+    skill: "prisma-patterns", agent: "database-reviewer", label: "Database review & Prisma patterns" },
+  // Deploy
+  { keywords: ["deploy","vps","docker","ci/cd","production","rollback","pm2","nginx","ssl"],
+    skill: "deployment-patterns", agent: null, label: "Deployment patterns & Docker" },
+  // API design
+  { keywords: ["api","endpoint","rest","pagination","response format","route","controller"],
+    skill: "api-design", agent: null, label: "REST API design conventions" },
+  // Testing
+  { keywords: ["test","tdd","coverage","jest","pytest","vitest","e2e","playwright test"],
+    skill: "tdd-workflow", agent: null, label: "TDD workflow (RED→GREEN→REFACTOR)" },
+  // Refactor
+  { keywords: ["refactor","dead code","cleanup","dọn code","xóa code thừa","unused"],
+    skill: null, agent: "refactor-cleaner", label: "Dead code detection & safe removal", command: "/refactor-clean" },
+  // Python review
+  { keywords: ["python review","review python","kiểm tra python","ruff","mypy","bandit"],
+    skill: "python-patterns", agent: "python-reviewer", label: "Python review (ruff/mypy/bandit)" },
+  // Facebook / Social
+  { keywords: ["facebook","fanpage","fb post","social media","đăng bài","auto post","spy","đối thủ"],
+    skill: "content-engine", agent: null, label: "Content engine & social publishing" },
+  // Scraping
+  { keywords: ["scrape","cào","crawl","selenium","playwright scrape","beautifulsoup","apify"],
+    skill: "data-scraper-agent", agent: null, label: "Web scraping agent patterns" },
+  // LLM / AI cost
+  { keywords: ["cost","chi phí","tiết kiệm","token","budget","model routing","giá","đắt","rẻ"],
+    skill: "cost-aware-llm-pipeline", agent: null, label: "LLM cost optimization & model routing" },
+  // Content writing
+  { keywords: ["viết bài","content","article","blog","rewrite","viết lại","copywriting","marketing content"],
+    skill: "article-writing", agent: null, label: "Article writing & brand voice" },
+  // Docker
+  { keywords: ["docker","compose","container","dockerfile","volume","network docker"],
+    skill: "docker-patterns", agent: null, label: "Docker Compose patterns & security" },
+  // Git workflow
+  { keywords: ["git","commit","branch","merge","conflict","rebase","cherry-pick"],
+    skill: "git-workflow", agent: null, label: "Git workflow & conventional commits" },
+  // Frontend
+  { keywords: ["react","nextjs","next.js","component","tailwind","frontend","ui","css","layout"],
+    skill: "frontend-patterns", agent: null, label: "React/Next.js frontend patterns" },
+  // Backend
+  { keywords: ["backend","server","middleware","cache","redis","queue","rate limit","auth"],
+    skill: "backend-patterns", agent: null, label: "Backend patterns (cache, auth, queue)" },
+  // MCP
+  { keywords: ["mcp","mcp server","tool server","protocol","context protocol"],
+    skill: "mcp-server-patterns", agent: null, label: "MCP server build patterns" },
+  // Automation loops
+  { keywords: ["automation","tự động","pipeline","loop","batch","schedule","cron","chạy tự động"],
+    skill: "autonomous-loops", agent: "loop-operator", label: "Autonomous loop patterns" },
+  // Silent failures
+  { keywords: ["silent fail","catch rỗng","empty catch","lỗi ẩn","không báo lỗi","swallow error"],
+    skill: null, agent: "silent-failure-hunter", label: "Hunt silent failures & empty catches" },
+  // Session management
+  { keywords: ["save session","lưu session","tiếp tục","resume","context mất","compact"],
+    skill: "strategic-compact", agent: null, label: "Strategic compact & session save", command: "/save-session" },
+  // Design / UI
+  { keywords: ["design","figma","design system","color","typography","spacing","design.md","brand"],
+    skill: "design-system", agent: null, label: "Design system & DESIGN.md format" },
+  // FastAPI
+  { keywords: ["fastapi","uvicorn","pydantic","async api"],
+    skill: "fastapi-patterns", agent: null, label: "FastAPI patterns & security" },
+  // Redis
+  { keywords: ["redis","cache","caching","session store","pub sub"],
+    skill: "redis-patterns", agent: null, label: "Redis caching patterns" },
+  // SEO
+  { keywords: ["seo","search engine","meta tag","sitemap","ranking","google search"],
+    skill: "seo", agent: null, label: "SEO optimization patterns" },
+  // Video
+  { keywords: ["video","ffmpeg","remotion","manim","render video","edit video"],
+    skill: "video-editing", agent: null, label: "Video editing & generation" },
+];
+
+function matchSkillRoutes(prompt) {
+  const p = prompt.toLowerCase();
+  // Normalize Vietnamese diacritics for matching
+  const pNorm = p.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+
+  const matches = [];
+  for (const route of SKILL_ROUTES) {
+    let score = 0;
+    for (const kw of route.keywords) {
+      const kwNorm = kw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+      if (pNorm.includes(kwNorm)) score += kw.includes(" ") ? 3 : 2; // multi-word = higher score
+    }
+    if (score >= 2) matches.push({ ...route, score });
+  }
+  return matches.sort((a, b) => b.score - a.score).slice(0, 3);
+}
+
 // --- Never Again Loader ---
 function loadNeverAgainWarnings() {
   try {
@@ -247,6 +350,21 @@ async function main() {
 
     out += `\n\nDung search_knowledge() hoac get_knowledge_file() de doc chi tiet.`;
     out += `\nSau khi hoan thanh task → dung add_learning() de luu bai hoc.`;
+  }
+
+  // --- Auto-route skills/agents ---
+  const skillMatches = matchSkillRoutes(prompt);
+  if (skillMatches.length > 0) {
+    out += `\n\n[SKILL-ROUTER] CHI THI BAT BUOC — doc CLAUDE.md quy tac [SKILL-ROUTER]:`;
+    for (const m of skillMatches) {
+      const parts = [];
+      if (m.skill) parts.push(`PHAI doc: ~/.claude/skills/ecc/${m.skill}/SKILL.md`);
+      if (m.agent) parts.push(`PHAI dung agent: ${m.agent}`);
+      if (m.command) parts.push(`command: ${m.command}`);
+      out += `\n  → ${m.label}`;
+      out += `\n    ${parts.join(" | ")}`;
+    }
+    out += `\n  KHONG hoi user, CU LAM THEO — user da cau hinh san.`;
   }
 
   if (out.trim()) {

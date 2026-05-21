@@ -1,14 +1,15 @@
 /**
- * Longbrain MCP Server v5.0
- * 21 tools for Second Brain knowledge management
+ * Longbrain MCP Server v7.0
+ * 23 tools for Second Brain knowledge management
  * Transport: stdio (Claude Code auto-connect via .mcp.json)
- * New in v5:
- *   - add_never_again, list_never_again (Never Again System — 00-NEVER-AGAIN)
- *   - add_decision, search_decisions (Decision Log — 35-DECISIONS)
- *   - Pre-flight Checklist auto-generated in init_project
- *   - get_context_for_task now includes decisions
- *   - mine_patterns (Pattern Mining — analyze recurring issues)
- *   - Proactive Warning hook (PreToolUse — longbrain-pretool.js)
+ * New in v7:
+ *   - Hybrid search: FTS5 (BM25) + sqlite-vec (cosine) + RRF fusion
+ *   - Auto-indexing: SHA-256 change detection, incremental embedding
+ *   - New tools: reindex_vault, search_semantic
+ *   - All search tools upgraded to hybrid search
+ *   - All write tools auto-index after file creation
+ * v6: source_code field, github_url field
+ * v5: never_again, decisions, mine_patterns, pre-flight checklist
  */
 
 "use strict";
@@ -17,11 +18,29 @@ const { StdioServerTransport } = require("@modelcontextprotocol/sdk/server/stdio
 const { z } = require("zod");
 const fs = require("fs");
 const path = require("path");
+const { LongbrainDB } = require("./db");
+const { reindexVault, indexSingleFile } = require("./indexer");
+const { hybridSearch, quickSearch } = require("./hybrid-search");
 
 // --- Config ---
 const VAULT_ROOT = path.resolve(process.env.AI_KNOWLEDGE_VAULT || ".");
 const VAULT_DIR = path.join(VAULT_ROOT, "AI Knowledge Build");
 const RESEARCH_DIR = path.join(VAULT_ROOT, "research");
+const DB_PATH = path.join(VAULT_ROOT, "mcp-server", "longbrain.db");
+
+// --- Hybrid Search DB (initialized after server setup) ---
+let db = null;
+let dbReady = false;
+
+function initDB() {
+  try {
+    db = new LongbrainDB(DB_PATH);
+    dbReady = true;
+    process.stderr.write("[Longbrain v7.0] DB initialized\n");
+  } catch (e) {
+    process.stderr.write(`[Longbrain v7.0] DB init error: ${e.message}\n`);
+  }
+}
 
 const CATEGORIES = {
   "01": { folder: "01-AI-FOUNDATIONS",     moc: "01 Nen Tang AI",         desc: "Khoa hoc, khai niem AI co ban" },
@@ -273,7 +292,7 @@ function buildPreflightChecklist({ name, description, stack }) {
 // --- MCP Server ---
 const server = new McpServer({
   name: "longbrain",
-  version: "5.0.0",
+  version: "7.0.0",
 });
 
 // ============================================================
@@ -283,9 +302,34 @@ const server = new McpServer({
 server.tool(
   "search_knowledge",
   "Tim kiem trong TOAN BO second brain: knowledge files, research, projects, bai hoc. " +
-  "LUON dung tool nay TRUOC khi code bat ky ky thuat phuc tap nao.",
+  "LUON dung tool nay TRUOC khi code bat ky ky thuat phuc tap nao. " +
+  "v7: Hybrid search (BM25 + semantic vector + RRF fusion).",
   { query: z.string().describe("Tu khoa tim kiem (VD: 'LangGraph state', 'Lark API', 'chatbot Zalo')") },
   async ({ query }) => {
+    // v7: Use hybrid search if DB is ready
+    if (dbReady && db) {
+      try {
+        const { results, strategy } = await hybridSearch(db, query, { limit: 10 });
+        if (results.length === 0) {
+          return {
+            content: [{
+              type: "text",
+              text: `KHONG TIM THAY kien thuc ve "${query}" trong Longbrain.\n\nHANH DONG TIEP THEO:\n1. Dung WebSearch/WebFetch de research\n2. Sau do dung add_knowledge de luu vao vault`,
+            }],
+          };
+        }
+        let output = `Tim thay ${results.length} ket qua cho "${query}" [${strategy}]:\n\n`;
+        for (const r of results) {
+          output += `## ${r.title} [${r.category}] (RRF: ${r.rrf_score.toFixed(4)} | FTS: ${r.fts_rank || '-'} | Vec: ${r.vec_rank || '-'})\n`;
+          output += `\`\`\`\n${r.snippet}\n\`\`\`\n\n`;
+        }
+        return { content: [{ type: "text", text: output }] };
+      } catch (e) {
+        process.stderr.write(`[Longbrain] Hybrid search error, falling back: ${e.message}\n`);
+      }
+    }
+
+    // Fallback: old regex search
     const allFiles = [
       ...getAllKnowledgeFiles(),
       ...getAllResearchFiles(),
@@ -303,7 +347,7 @@ server.tool(
       };
     }
 
-    let output = `Tim thay ${results.length} ket qua cho "${query}":\n\n`;
+    let output = `Tim thay ${results.length} ket qua cho "${query}" [FALLBACK]:\n\n`;
     for (const r of results) {
       output += `## ${r.file} [${r.category}] (score: ${r.score})\n`;
       for (const s of r.snippets) {
@@ -319,13 +363,76 @@ server.tool(
   "get_context_for_task",
   "Tool QUAN TRONG NHAT. Dung khi bat dau bat ky task nao. " +
   "Tim tat ca kien thuc lien quan: knowledge + projects da lam + bai hoc - tat ca trong 1 lan goi. " +
-  "Giup Claude hieu context day du truoc khi code, tranh bug da gap.",
+  "Giup Claude hieu context day du truoc khi code, tranh bug da gap. " +
+  "v7: Hybrid search (BM25 + semantic vector + RRF fusion).",
   {
     task_description: z.string().describe(
       "Mo ta task can lam (VD: 'build chatbot Zalo su dung LangGraph va PostgreSQL')"
     ),
   },
   async ({ task_description }) => {
+    // v7: Use hybrid search if DB is ready
+    if (dbReady && db) {
+      try {
+        const { results } = await hybridSearch(db, task_description, { limit: 15 });
+        if (results.length === 0) {
+          return {
+            content: [{
+              type: "text",
+              text: `Chua co kien thuc ve task nay trong vault.\n\nGoi y:\n- Dung WebSearch de research truoc\n- Sau khi hoan thanh, dung add_learning de luu bai hoc`,
+            }],
+          };
+        }
+
+        // Group by category
+        const knowledge = results.filter(r => !["30-PROJECTS","32-LEARNINGS","35-DECISIONS"].includes(r.category));
+        const projects  = results.filter(r => r.category === "30-PROJECTS");
+        const learnings = results.filter(r => r.category === "32-LEARNINGS");
+        const decisions = results.filter(r => r.category === "35-DECISIONS");
+
+        let output = `# Longbrain Context cho task: "${task_description}"\n\n`;
+
+        if (knowledge.length > 0) {
+          output += `## Kien thuc lien quan (${knowledge.length} files)\n`;
+          for (const r of knowledge.slice(0, 5)) {
+            output += `### ${r.title} [${r.category}] (RRF: ${r.rrf_score.toFixed(4)})\n`;
+            output += `\`\`\`\n${r.snippet}\n\`\`\`\n`;
+            output += `> Doc day du: get_knowledge_file("${path.basename(r.path)}")\n\n`;
+          }
+        }
+
+        if (projects.length > 0) {
+          output += `## Du an da tung build tuong tu (${projects.length})\n`;
+          for (const r of projects.slice(0, 3)) {
+            output += `### ${r.title} (RRF: ${r.rrf_score.toFixed(4)})\n`;
+            output += `\`\`\`\n${r.snippet}\n\`\`\`\n\n`;
+          }
+        }
+
+        if (decisions.length > 0) {
+          output += `## Quyet dinh kien truc lien quan (${decisions.length})\n`;
+          for (const r of decisions.slice(0, 3)) {
+            output += `### ${r.title} (RRF: ${r.rrf_score.toFixed(4)})\n`;
+            output += `\`\`\`\n${r.snippet}\n\`\`\`\n\n`;
+          }
+        }
+
+        if (learnings.length > 0) {
+          output += `## Bai hoc da duc ket (${learnings.length} - QUAN TRONG: doc de tranh bug)\n`;
+          for (const r of learnings.slice(0, 5)) {
+            output += `### ${r.title} (RRF: ${r.rrf_score.toFixed(4)})\n`;
+            output += `\`\`\`\n${r.snippet}\n\`\`\`\n\n`;
+          }
+        }
+
+        output += `---\n> Sau khi hoan thanh task → PHAI goi add_learning() de luu bai hoc moi.`;
+        return { content: [{ type: "text", text: output }] };
+      } catch (e) {
+        process.stderr.write(`[Longbrain] Hybrid search error in get_context, falling back: ${e.message}\n`);
+      }
+    }
+
+    // Fallback: old regex search
     const allFiles = [
       ...getAllKnowledgeFiles(),
       ...getAllResearchFiles(),
@@ -350,7 +457,7 @@ server.tool(
     const learnings  = results.filter(r => r.category === "learning");
     const decisions  = results.filter(r => r.category === "decision");
 
-    let output = `# Longbrain Context cho task: "${task_description}"\n\n`;
+    let output = `# Longbrain Context cho task: "${task_description}" [FALLBACK]\n\n`;
 
     if (knowledge.length > 0) {
       output += `## Kien thuc lien quan (${knowledge.length} files)\n`;
@@ -460,14 +567,21 @@ server.tool(
 
 server.tool(
   "add_knowledge",
-  "Them 1 knowledge file moi vao vault. Dung sau khi research xong de luu kien thuc.",
+  "Them 1 knowledge file moi vao vault. Dung sau khi research xong de luu kien thuc. " +
+  "BAT BUOC phai co source_code de lan sau co the copy va trien khai lai.",
   {
     category_id: z.string().describe("ID category: '01'-'20'"),
     name: z.string().describe("Ten file (VD: 'Zalo-API' -> tao Zalo-API-Knowledge.md)"),
     content: z.string().describe("Noi dung markdown day du"),
     tags: z.array(z.string()).optional().describe("Tags (VD: ['zalo', 'api', 'vietnam'])"),
+    source_code: z.string().optional().describe(
+      "QUAN TRONG: Source code day du de co the trien khai lai. " +
+      "Bao gom: main files, config, key functions. " +
+      "Neu la research thi bao gom code examples tu docs."
+    ),
+    github_url: z.string().optional().describe("Link GitHub repo/folder chua source code day du"),
   },
-  async ({ category_id, name, content, tags }) => {
+  async ({ category_id, name, content, tags, source_code, github_url }) => {
     const cat = CATEGORIES[category_id];
     if (!cat) return { content: [{ type: "text", text: `Category "${category_id}" khong ton tai. Dung list_categories.` }] };
 
@@ -480,10 +594,27 @@ server.tool(
     }
 
     const tagList = tags || [safeName.toLowerCase()];
-    const fm = `---\ntags: [${tagList.join(", ")}]\ndescription: ${name}\ncreated: ${today()}\nmoc: "[[${cat.moc}]]"\n---\n\n`;
-    fs.writeFileSync(filePath, fm + content, "utf-8");
+    const fm = `---\ntags: [${tagList.join(", ")}]\ndescription: ${name}\ncreated: ${today()}\nmoc: "[[${cat.moc}]]"\n${github_url ? `github: ${github_url}\n` : ""}---\n\n`;
 
-    return { content: [{ type: "text", text: `Da tao: ${filename}\nPath: ${cat.folder}/${filename}` }] };
+    let body = content;
+    if (source_code) {
+      body += `\n\n## Source Code\n\n${source_code}\n`;
+    }
+    if (github_url) {
+      body += `\n## GitHub\n${github_url}\n`;
+    }
+
+    fs.writeFileSync(filePath, fm + body, "utf-8");
+
+    // v7: Auto-index into hybrid search DB
+    if (dbReady && db) {
+      indexSingleFile(db, VAULT_DIR, filePath).catch(e =>
+        process.stderr.write(`[Longbrain] Index error: ${e.message}\n`)
+      );
+    }
+
+    const warning = !source_code ? "\n⚠️ CANH BAO: Khong co source_code — lan sau kho trien khai lai!" : "";
+    return { content: [{ type: "text", text: `Da tao: ${filename}\nPath: ${cat.folder}/${filename}${warning}` }] };
   }
 );
 
@@ -511,10 +642,22 @@ server.tool(
         const fmMatch = existing.match(/^---[\s\S]*?---\n/);
         const fm = fmMatch ? fmMatch[0] : "";
         fs.writeFileSync(filePath, fm + content, "utf-8");
+        // v7: Auto-index
+        if (dbReady && db) {
+          indexSingleFile(db, VAULT_DIR, filePath).catch(e =>
+            process.stderr.write(`[Longbrain] Index error: ${e.message}\n`)
+          );
+        }
         return { content: [{ type: "text", text: `Da ghi de noi dung: ${filename}` }] };
       } else {
         // Append
         fs.writeFileSync(filePath, existing + "\n\n" + content, "utf-8");
+        // v7: Auto-index
+        if (dbReady && db) {
+          indexSingleFile(db, VAULT_DIR, filePath).catch(e =>
+            process.stderr.write(`[Longbrain] Index error: ${e.message}\n`)
+          );
+        }
         return { content: [{ type: "text", text: `Da them noi dung vao: ${filename}` }] };
       }
     }
@@ -654,7 +797,8 @@ server.tool(
 
 server.tool(
   "add_project",
-  "Ghi lai 1 du an (moi hoac cu). Luu: stack, quyet dinh, bai hoc, ket qua.",
+  "Ghi lai 1 du an (moi hoac cu). Luu: stack, quyet dinh, bai hoc, ket qua. " +
+  "BAT BUOC phai co source_code de lan sau co the trien khai lai thay vi code tu dau.",
   {
     name: z.string().describe("Ten du an (VD: 'AI-Chatbot-Zalo')"),
     status: z.enum(["dang-lam", "hoan-thanh", "tam-dung"]).describe("Trang thai"),
@@ -665,8 +809,14 @@ server.tool(
     decisions: z.string().optional().describe("Cac quyet dinh kien truc quan trong"),
     learnings: z.string().optional().describe("Bai hoc rut ra"),
     outcome: z.string().optional().describe("Ket qua / impact"),
+    source_code: z.string().optional().describe(
+      "QUAN TRONG: Source code chinh cua du an. " +
+      "Bao gom: main entry point, core logic, config, key modules. " +
+      "Day la phan THIET YEU de co the trien khai lai du an."
+    ),
+    github_url: z.string().optional().describe("Link GitHub repo/folder (VD: 'https://github.com/buitrankimlong/Projects/tree/main/...')"),
   },
-  async ({ name, status, started, client, stack, description, decisions, learnings, outcome }) => {
+  async ({ name, status, started, client, stack, description, decisions, learnings, outcome, source_code, github_url }) => {
     const dir = path.join(VAULT_DIR, "30-PROJECTS");
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
@@ -676,24 +826,54 @@ server.tool(
     let body = `---\ntags: [project, ${safeName.toLowerCase()}]\nstatus: ${status}\nstarted: ${started || today()}\n`;
     if (client) body += `client: ${client}\n`;
     if (stack)  body += `stack: [${stack.join(", ")}]\n`;
+    if (github_url) body += `github: ${github_url}\n`;
     body += `updated: ${today()}\n---\n\n`;
     body += `# ${name}\n\n## Mo ta\n${description}\n\n`;
     if (stack)      body += `## Stack\n${stack.map(s => `- ${s}`).join("\n")}\n\n`;
     if (decisions)  body += `## Quyet dinh quan trong\n${decisions}\n\n`;
     if (learnings)  body += `## Bai hoc rut ra\n${learnings}\n\n`;
     if (outcome)    body += `## Ket qua\n${outcome}\n\n`;
+    if (source_code) body += `## Source Code\n\n${source_code}\n\n`;
+    if (github_url) body += `## GitHub\n${github_url}\n\n`;
     body += `## Lien ket\n-> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]\n`;
 
     fs.writeFileSync(filePath, body, "utf-8");
-    return { content: [{ type: "text", text: `Da luu du an: ${safeName}.md` }] };
+
+    // v7: Auto-index into hybrid search DB
+    if (dbReady && db) {
+      indexSingleFile(db, VAULT_DIR, filePath).catch(e =>
+        process.stderr.write(`[Longbrain] Index error: ${e.message}\n`)
+      );
+    }
+
+    const warning = !source_code ? "\n⚠️ CANH BAO: Khong co source_code — lan sau kho trien khai lai!" : "";
+    return { content: [{ type: "text", text: `Da luu du an: ${safeName}.md${warning}` }] };
   }
 );
 
 server.tool(
   "search_projects",
-  "Tim kiem trong cac du an da lam. Dung khi muon biet 'da tung build cai nay chua?' hoac 'du an nao dung tech X?'",
+  "Tim kiem trong cac du an da lam. Dung khi muon biet 'da tung build cai nay chua?' hoac 'du an nao dung tech X?' " +
+  "v7: Hybrid search.",
   { query: z.string().describe("Tu khoa (VD: 'chatbot', 'Lark', 'NextJS', 'CRM')") },
   async ({ query }) => {
+    if (dbReady && db) {
+      try {
+        const { results, strategy } = await hybridSearch(db, query, { limit: 10, category: "30-PROJECTS" });
+        if (results.length === 0) {
+          return { content: [{ type: "text", text: `Khong tim thay du an lien quan den "${query}".` }] };
+        }
+        let output = `Tim thay ${results.length} du an lien quan den "${query}" [${strategy}]:\n\n`;
+        for (const r of results) {
+          output += `## ${r.title} (RRF: ${r.rrf_score.toFixed(4)})\n`;
+          output += `\`\`\`\n${r.snippet}\n\`\`\`\n\n`;
+        }
+        return { content: [{ type: "text", text: output }] };
+      } catch (e) {
+        process.stderr.write(`[Longbrain] search_projects hybrid error: ${e.message}\n`);
+      }
+    }
+    // Fallback
     const projects = getAllProjectFiles();
     if (projects.length === 0) {
       return { content: [{ type: "text", text: "Chua co du an nao. Dung add_project de them." }] };
@@ -702,7 +882,7 @@ server.tool(
     if (results.length === 0) {
       return { content: [{ type: "text", text: `Khong tim thay du an lien quan den "${query}".` }] };
     }
-    let output = `Tim thay ${results.length} du an lien quan den "${query}":\n\n`;
+    let output = `Tim thay ${results.length} du an lien quan den "${query}" [FALLBACK]:\n\n`;
     for (const r of results) {
       output += `## ${r.file}\n`;
       for (const s of r.snippets) output += `\`\`\`\n${s}\n\`\`\`\n`;
@@ -786,17 +966,23 @@ server.tool(
 server.tool(
   "add_learning",
   "Ghi lai 1 bai hoc rut ra. Day la noi QUY GIA NHAT cua second brain. " +
-  "Phai goi sau moi bug fix, feature hoan thanh, hoac pattern moi phat hien.",
+  "Phai goi sau moi bug fix, feature hoan thanh, hoac pattern moi phat hien. " +
+  "BAT BUOC phai co source_code day du de lan sau co the COPY VA TRIEN KHAI LAI ngay, thay vi code tu dau.",
   {
     title: z.string().describe("Mo ta ngan (VD: 'Cach xu ly rate limit Lark API')"),
-    context: z.string().describe("Boi canh: van de gap phai la gi?"),
-    solution: z.string().describe("Giai phap da ap dung"),
-    takeaway: z.string().describe("Duc ket: lan sau gap tuong tu thi lam gi?"),
+    context: z.string().describe("Boi canh CHI TIET: van de gap phai, stack dang dung, loi cu the"),
+    solution: z.string().describe("Giai phap CHI TIET: tung buoc da lam, config da thay doi, commands da chay"),
+    takeaway: z.string().describe("Duc ket: lan sau gap tuong tu thi lam gi? Buoc nao KHONG duoc bo qua?"),
     project: z.string().optional().describe("Ten du an lien quan"),
     tags: z.array(z.string()).optional().describe("Tags"),
-    code_snippet: z.string().optional().describe("Code/config mau (optional)"),
+    source_code: z.string().optional().describe(
+      "QUAN TRONG — Source code/config DAY DU de co the trien khai lai. " +
+      "Bao gom: file chinh, config, commands, env vars. " +
+      "Format: ten_file: \\n```lang\\ncode\\n``` cho moi file. " +
+      "Neu la bug fix: bao gom code TRUOC va SAU khi fix."
+    ),
   },
-  async ({ title, context, solution, takeaway, project, tags, code_snippet }) => {
+  async ({ title, context, solution, takeaway, project, tags, source_code }) => {
     const dir = path.join(VAULT_DIR, "32-LEARNINGS");
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
@@ -812,22 +998,51 @@ server.tool(
     body += `## Boi canh\n${context}\n\n`;
     body += `## Giai phap\n${solution}\n\n`;
     body += `## Duc ket\n${takeaway}\n\n`;
-    if (code_snippet) body += `## Code mau\n\`\`\`\n${code_snippet}\n\`\`\`\n\n`;
+    if (source_code) {
+      body += `## Source Code\n\n${source_code}\n\n`;
+    }
     body += `## Lien ket\n-> [[32 Bai Hoc Duc Ket]]`;
     if (project) body += ` | [[${project}]]`;
     body += "\n";
 
     fs.writeFileSync(filePath, body, "utf-8");
-    return { content: [{ type: "text", text: `Da luu bai hoc: ${filename}` }] };
+
+    // v7: Auto-index into hybrid search DB
+    if (dbReady && db) {
+      indexSingleFile(db, VAULT_DIR, filePath).catch(e =>
+        process.stderr.write(`[Longbrain] Index error: ${e.message}\n`)
+      );
+    }
+
+    const warning = !source_code ? "\n⚠️ CANH BAO: Khong co source_code — bai hoc nay se kho ap dung lai!" : "";
+    return { content: [{ type: "text", text: `Da luu bai hoc: ${filename}${warning}` }] };
   }
 );
 
 server.tool(
   "search_learnings",
   "Tim kiem trong cac bai hoc da duc ket. " +
-  "Dung khi gap bug/van de va muon biet 'minh da giai quyet cai nay bao gio chua?'",
+  "Dung khi gap bug/van de va muon biet 'minh da giai quyet cai nay bao gio chua?' " +
+  "v7: Hybrid search.",
   { query: z.string().describe("Tu khoa (VD: 'rate limit', 'webhook', 'postgres connection')") },
   async ({ query }) => {
+    if (dbReady && db) {
+      try {
+        const { results, strategy } = await hybridSearch(db, query, { limit: 10, category: "32-LEARNINGS" });
+        if (results.length === 0) {
+          return { content: [{ type: "text", text: `Khong tim thay bai hoc lien quan den "${query}".` }] };
+        }
+        let output = `Tim thay ${results.length} bai hoc lien quan [${strategy}]:\n\n`;
+        for (const r of results) {
+          output += `## ${r.title} (RRF: ${r.rrf_score.toFixed(4)})\n`;
+          output += `\`\`\`\n${r.snippet}\n\`\`\`\n\n`;
+        }
+        return { content: [{ type: "text", text: output }] };
+      } catch (e) {
+        process.stderr.write(`[Longbrain] search_learnings hybrid error: ${e.message}\n`);
+      }
+    }
+    // Fallback
     const learnings = getAllLearningFiles();
     if (learnings.length === 0) {
       return { content: [{ type: "text", text: "Chua co bai hoc nao. Dung add_learning de them." }] };
@@ -836,7 +1051,7 @@ server.tool(
     if (results.length === 0) {
       return { content: [{ type: "text", text: `Khong tim thay bai hoc lien quan den "${query}".` }] };
     }
-    let output = `Tim thay ${results.length} bai hoc lien quan:\n\n`;
+    let output = `Tim thay ${results.length} bai hoc lien quan [FALLBACK]:\n\n`;
     for (const r of results) {
       output += `## ${r.file}\n`;
       for (const s of r.snippets) output += `\`\`\`\n${s}\n\`\`\`\n`;
@@ -1167,6 +1382,14 @@ server.tool(
     if (project) body += `> Project: [[${project}]]\n`;
 
     fs.writeFileSync(filePath, body, "utf-8");
+
+    // v7: Auto-index into hybrid search DB
+    if (dbReady && db) {
+      indexSingleFile(db, VAULT_DIR, filePath).catch(e =>
+        process.stderr.write(`[Longbrain] Index error: ${e.message}\n`)
+      );
+    }
+
     return {
       content: [{
         type: "text",
@@ -1179,9 +1402,27 @@ server.tool(
 server.tool(
   "search_decisions",
   "Tim kiem trong lich su quyet dinh kien truc. " +
-  "Dung khi muon biet 'truoc day da quyet dinh gi ve X?' hoac 'tai sao khong dung Y?'",
+  "Dung khi muon biet 'truoc day da quyet dinh gi ve X?' hoac 'tai sao khong dung Y?' " +
+  "v7: Hybrid search.",
   { query: z.string().describe("Tu khoa (VD: 'database', 'framework', 'API')") },
   async ({ query }) => {
+    if (dbReady && db) {
+      try {
+        const { results, strategy } = await hybridSearch(db, query, { limit: 10, category: "35-DECISIONS" });
+        if (results.length === 0) {
+          return { content: [{ type: "text", text: `Khong tim thay decision lien quan den "${query}".` }] };
+        }
+        let output = `Tim thay ${results.length} decisions lien quan [${strategy}]:\n\n`;
+        for (const r of results) {
+          output += `## ${r.title} (RRF: ${r.rrf_score.toFixed(4)})\n`;
+          output += `\`\`\`\n${r.snippet}\n\`\`\`\n\n`;
+        }
+        return { content: [{ type: "text", text: output }] };
+      } catch (e) {
+        process.stderr.write(`[Longbrain] search_decisions hybrid error: ${e.message}\n`);
+      }
+    }
+    // Fallback
     const dir = path.join(VAULT_DIR, "35-DECISIONS");
     if (!fs.existsSync(dir)) {
       return { content: [{ type: "text", text: "Chua co decision nao. Dung add_decision de them." }] };
@@ -1199,7 +1440,7 @@ server.tool(
       return { content: [{ type: "text", text: `Khong tim thay decision lien quan den "${query}".` }] };
     }
 
-    let output = `Tim thay ${results.length} decisions lien quan:\n\n`;
+    let output = `Tim thay ${results.length} decisions lien quan [FALLBACK]:\n\n`;
     for (const r of results) {
       output += `## ${r.name}\n`;
       for (const s of r.snippets) output += `\`\`\`\n${s}\n\`\`\`\n`;
@@ -1258,6 +1499,13 @@ server.tool(
     const updatedIndex = existingIndex.trimEnd() + "\n" + newEntry;
     fs.writeFileSync(NEVER_AGAIN_INDEX, updatedIndex, "utf-8");
 
+    // v7: Auto-index into hybrid search DB
+    if (dbReady && db) {
+      indexSingleFile(db, VAULT_DIR, filePath).catch(e =>
+        process.stderr.write(`[Longbrain] Index error: ${e.message}\n`)
+      );
+    }
+
     return {
       content: [{
         type: "text",
@@ -1285,11 +1533,116 @@ server.tool(
   }
 );
 
+// ============================================================
+// HYBRID SEARCH TOOLS (v7)
+// ============================================================
+
+server.tool(
+  "reindex_vault",
+  "Index lai toan bo vault vao hybrid search DB. " +
+  "Dung khi: lan dau chay v7, them nhieu files thu cong, hoac nghi DB bi loi.",
+  {
+    mode: z.enum(["incremental", "full"]).default("incremental").describe(
+      "incremental: chi index files moi/thay doi | full: rebuild toan bo (xoa DB cu)"
+    ),
+  },
+  async ({ mode }) => {
+    if (!db) {
+      initDB();
+      if (!db) return { content: [{ type: "text", text: "Khong the khoi tao DB. Kiem tra better-sqlite3 va sqlite-vec." }] };
+    }
+
+    const startTime = Date.now();
+    try {
+      const stats = await reindexVault(db, VAULT_DIR, {
+        forceAll: mode === "full",
+        onProgress: (p) => process.stderr.write(`[Longbrain] Indexing: ${p.done}/${p.total}\n`),
+      });
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
+      let output = `# Reindex Complete (${mode}) — ${elapsed}s\n\n`;
+      output += `| Metric | Value |\n|--------|-------|\n`;
+      output += `| Total files scanned | ${stats.total} |\n`;
+      output += `| Added | ${stats.added} |\n`;
+      output += `| Updated | ${stats.updated} |\n`;
+      output += `| Skipped (unchanged) | ${stats.skipped} |\n`;
+      output += `| Deleted | ${stats.deleted} |\n`;
+      output += `| Embedded | ${stats.embedded} |\n`;
+      if (stats.tokensUsed) output += `| Tokens used | ${stats.tokensUsed} |\n`;
+      output += `\nDB: ${db.getDocCount()} docs, ${db.getVecCount()} vectors`;
+
+      return { content: [{ type: "text", text: output }] };
+    } catch (e) {
+      return { content: [{ type: "text", text: `Reindex error: ${e.message}` }] };
+    }
+  }
+);
+
+server.tool(
+  "search_semantic",
+  "Tim kiem thuan vector (semantic). Dung khi can tim y nghia tuong tu thay vi keyword chinh xac. " +
+  "Tot cho: cau hoi tieng Viet, cross-language, mo ta khai niem.",
+  {
+    query: z.string().describe("Cau hoi hoac mo ta (VD: 'cach trien khai ung dung len server')"),
+    limit: z.number().optional().default(10).describe("So ket qua toi da"),
+  },
+  async ({ query, limit }) => {
+    if (!dbReady || !db) {
+      return { content: [{ type: "text", text: "DB chua san sang. Chay reindex_vault truoc." }] };
+    }
+
+    try {
+      const { embedSingle } = require("./embeddings");
+      const queryEmbedding = await embedSingle(query);
+      const vecResults = db.searchVector(queryEmbedding, limit);
+
+      if (vecResults.length === 0) {
+        return { content: [{ type: "text", text: `Khong tim thay ket qua semantic cho "${query}".` }] };
+      }
+
+      let output = `Tim thay ${vecResults.length} ket qua semantic cho "${query}":\n\n`;
+      for (const r of vecResults) {
+        const doc = db.getDocumentById(Number(r.id));
+        if (!doc) continue;
+        output += `## ${doc.title} [${doc.category}] (distance: ${r.distance.toFixed(4)})\n`;
+        output += `\`\`\`\n${doc.content.substring(0, 500)}\n\`\`\`\n\n`;
+      }
+      return { content: [{ type: "text", text: output }] };
+    } catch (e) {
+      return { content: [{ type: "text", text: `Semantic search error: ${e.message}` }] };
+    }
+  }
+);
+
+// --- Update vault_stats to include DB info ---
+// (vault_stats already exists above, we enhance it via the DB)
+
 // --- Start ---
 async function main() {
   const transport = new StdioServerTransport();
+
+  // Initialize hybrid search DB
+  initDB();
+
   await server.connect(transport);
-  process.stderr.write("[Longbrain v5.0] MCP Server started\n");
+  process.stderr.write("[Longbrain v7.0] MCP Server started (23 tools, hybrid search)\n");
+
+  // Background: incremental reindex
+  if (dbReady && db) {
+    (async () => {
+      try {
+        const stats = await reindexVault(db, VAULT_DIR, {
+          onProgress: (p) => process.stderr.write(`[Longbrain] Indexing: ${p.done}/${p.total}\n`),
+        });
+        process.stderr.write(
+          `[Longbrain] Index complete: ${stats.added} added, ${stats.updated} updated, ` +
+          `${stats.skipped} skipped, ${stats.embedded} embedded\n`
+        );
+      } catch (e) {
+        process.stderr.write(`[Longbrain] Background index error: ${e.message}\n`);
+      }
+    })();
+  }
 }
 
 main().catch(err => {

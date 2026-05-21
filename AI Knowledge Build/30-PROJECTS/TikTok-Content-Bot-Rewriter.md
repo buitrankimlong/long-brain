@@ -32,3 +32,9 @@ Bot phân tích + rewrite + tạo infographic từ TikTok, hỗ trợ brand guid
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+> **NOTE:** Folder chỉ chứa Edge browser profile. Source code trên PC nhà (E:\Projects).
+> Cần SSH vào PC nhà (100.87.190.39) để lấy source code.

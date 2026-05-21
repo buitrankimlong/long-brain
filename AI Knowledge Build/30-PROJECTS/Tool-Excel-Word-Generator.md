@@ -28,3 +28,82 @@ openpyxl styling: PatternFill solid + hex colors (không 0x), Border dùng Side 
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+run.py:
+```python
+import pandas as pd
+import json
+from datetime import datetime
+
+def export_to_json_tables(input_csv):
+    try:
+        # 1. Đọc dữ liệu CSV
+        df = pd.read_csv(input_csv, encoding='utf-8-sig')
+        df.columns = [col.strip() for col in df.columns]
+        df = df.fillna("") # Thay thế NaN bằng chuỗi rỗng
+
+        users_list = []
+        company_profiles_list = []
+        
+        # Giả định ID bắt đầu sau 7 bản ghi mẫu của bạn
+        start_id = 8
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        for index, row in df.iterrows():
+            current_id = start_id + index
+            
+            # --- Xử lý cho bảng USERS ---
+            user_entry = {
+                "id": current_id,
+                "username": str(row['Email']) if row['Email'] else str(row['Mã số thuế']),
+                "password": "defaultsalt:Test@123defaultsalt",
+                "business_name": str(row['Tên công ty']),
+                "business_email": str(row['Email']),
+                "tax_id": str(row['Mã số thuế']),
+                "phone_number": str(row['Điện thoại']),
+                "role": "user",
+                "verified": False,
+                "active": True if "hoạt động" in str(row['Trạng thái']).lower() else False,
+                "created_at": current_time
+            }
+            users_list.append(user_entry)
+
+            # --- Xử lý cho bảng COMPANY_PROFILES ---
+            # Gộp địa chỉ từ các cột Phường, Quận, Thành Phố
+            full_location = f"{row['Phường']}, {row['Quận']}, {row['Thành Phố']}".strip(", ")
+            
+            profile_entry = {
+                "id": index + 1, # ID tự tăng của bảng profile
+                "userId": current_id, # Khóa ngoại liên kết với bảng users ở trên
+                "legalName": str(row['Tên công ty']),
+                "companyAcronyms": str(row['Tên viết tắt']),
+                "address": str(row['Địa chỉ thuế']),
+                "location": full_location,
+                "founders": str(row['Đại diện pháp luật']),
+                "registerDate": str(row['Ngày cấp']),
+                "updatedAt": current_time,
+                "website": "", # CSV không có, để trống
+                "main_industry": "" # Có thể map thêm nếu cần
+            }
+            company_profiles_list.append(profile_entry)
+
+        # 2. Xuất file JSON cho Users
+        with open('users_table.json', 'w', encoding='utf-8') as f:
+            json.dump(users_list, f, ensure_ascii=False, indent=4)
+            
+        # 3. Xuất file JSON cho Company Profiles
+        with open('company_profiles_table.json', 'w', encoding='utf-8') as f:
+            json.dump(company_profiles_list, f, ensure_ascii=False, indent=4)
+
+        print(f"✅ Đã tạo xong 2 file: 'users_table.json' và 'company_profiles_table.json'")
+        print(f"📊 Xử lý thành công {len(df)} dòng dữ liệu.")
+
+    except Exception as e:
+        print(f"❌ Lỗi hệ thống: {e}")
+
+if __name__ == "__main__":
+    export_to_json_tables('Data_doanh_nghiep_FINAL.csv')
+```

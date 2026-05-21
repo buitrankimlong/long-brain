@@ -30,3 +30,9 @@ Hoàn thành: 2 scripts chính (setup_tool.py + zalo_auto.py), 1 file dữ liệ
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+> **NOTE:** Source code CHỈ trên PC nhà. Tool desktop dùng PyAutoGUI.
+> Cần SSH vào PC nhà (100.87.190.39) để lấy source code.

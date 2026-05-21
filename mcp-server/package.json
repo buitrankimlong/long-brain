@@ -1,17 +1,24 @@
 {
   "name": "longbrain-mcp",
-  "version": "3.0.0",
-  "description": "Longbrain MCP Server - Second Brain AI Knowledge System",
+  "version": "7.0.0",
+  "description": "Longbrain MCP Server v7 - Hybrid Semantic Search (FTS5 + sqlite-vec + RRF)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": ["mcp", "second-brain", "ai", "knowledge"],
+  "keywords": [
+    "mcp",
+    "second-brain",
+    "ai",
+    "knowledge"
+  ],
   "author": "tom-bdm",
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "better-sqlite3": "^12.10.0",
+    "sqlite-vec": "^0.1.9",
     "zod": "^3.25.1"
   }
 }

@@ -85,3 +85,9 @@ Website production (tinhbao.ai) với **8 modules live**:
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+> **NOTE:** Source code trên PC nhà (C:\openclaw\projects\tinh-bao-ai).
+> Cần SSH vào PC nhà (100.87.190.39) để lấy source code.

@@ -33,3 +33,90 @@ Fetch MST hoàn thành. Validate 1000s công ty → users_updated.json. Name mat
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+fetch_mst.py:
+```python
+import asyncio
+import csv
+import json
+import re
+import os
+import logging
+import time
+import unicodedata
+
+import aiohttp
+from lxml import html as lxml_html
+from stdnum.vn.mst import is_valid as is_valid_mst, compact as compact_mst
+from tqdm import tqdm
+
+# --- Config ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CSV_FILE = os.path.join(BASE_DIR, "danh_sach_cong_ty_HCM.csv")
+USERS_FILE = os.path.join(BASE_DIR, "users.json")
+OUTPUT_FILE = os.path.join(BASE_DIR, "users_updated.json")
+CACHE_FILE = os.path.join(BASE_DIR, "mst_cache.json")
+MISMATCH_FILE = os.path.join(BASE_DIR, "mst_mismatches.json")
+LOG_FILE = os.path.join(BASE_DIR, "fetch_mst.log")
+
+MAX_CONCURRENT = 30
+REQUEST_TIMEOUT = 12
+RETRY_COUNT = 2
+CACHE_SAVE_EVERY = 200
+CONN_LIMIT = 50
+
+PLATFORM_MST = "0104478506"
+NAME_MATCH_THRESHOLD = 0.6  # ty le tu trung khop toi thieu de chap nhan
+
+# Regex compile 1 lan
+RE_TAXID_JSON = re.compile(r'"taxID"\s*:\s*"(\d{10,13})"')
+RE_NAME_JSON = re.compile(r'"name"\s*:\s*"([^"]+)"')
+RE_MST_LABEL = re.compile(
+    r'(?:MÃ\s*SỐ\s*THUẾ|Mã\s*số\s*thuế|MST|Tax\s*(?:ID|Code))\s*[:\-]?\s*(\d{10,13})',
+    re.IGNORECASE
+)
+
+# --- Logging ---
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE, encoding="utf-8"),
+        logging.StreamHandler()
+    ]
+)
+log = logging.getLogger(__name__)
+
+
+# ============================================================
+# CACHE
+# ============================================================
+def load_cache():
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+
+def save_cache(cache):
+    tmp = CACHE_FILE + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(cache, f, ensure_ascii=False)
+    os.replace(tmp, CACHE_FILE)
+
+
+# ============================================================
+# NAME SIMILARITY - xac minh ten cong ty
+# ============================================================
+def remove_accents(text):
+    """Bo dau tieng Viet: Công Ty -> Cong Ty."""
+    nfkd = unicodedata.normalize('NFKD', text)
+    return ''.join(c for c in nfkd if not unicodedata.combining(c))
+
+
+def normalize_name(name: str) -> str:
+    name = remove_accents(name).lower().strip()
+```

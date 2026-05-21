@@ -30,3 +30,90 @@ Hoàn thành 100%: 10+ scripts (main.py, masothue_hcm_crawl.py, download_html.py
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+:
+```python
+# -*- coding: utf-8 -*-
+"""
+Debug script - Kiểm tra Chrome connection và lấy dữ liệu TP.HCM
+"""
+
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
+from playwright.sync_api import sync_playwright
+from bs4 import BeautifulSoup
+import time
+
+BASE_URL = 'https://masothue.com'
+
+def debug_hcm_structure():
+    """Debug cấu trúc TP.HCM"""
+    
+    try:
+        print("=" * 60)
+        print("DEBUG - KIỂM TRA CHROME CONNECTION VÀ TP.HCM")
+        print("=" * 60)
+        
+        with sync_playwright() as p:
+            print("\n[1] Đang kết nối Chrome...")
+            try:
+                browser = p.chromium.connect_over_cdp("http://localhost:9222")
+                default_context = browser.contexts[0]
+                
+                if not default_context.pages:
+                    print("❌ Không có trang nào trong Chrome!")
+                    return
+                
+                page = default_context.pages[0]
+                print(f"✓ Kết nối thành công!")
+                print(f"  Tab title: {page.title()}")
+                print(f"  URL hiện tại: {page.url}")
+                
+            except Exception as e:
+                print(f"❌ Lỗi kết nối: {e}")
+                print("\nVui lòng:")
+                print("1. Mở Chrome")
+                print("2. Chạy: chrome --remote-debugging-port=9222")
+                return
+            
+            print("\n[2] Đang truy cập TP.HCM...")
+            hcm_url = f"{BASE_URL}/tra-cuu-ma-so-thue-theo-tinh/ho-chi-minh-23"
+            page.goto(hcm_url, timeout=60000)
+            print(f"✓ Truy cập thành công")
+            print(f"  URL: {page.url}")
+            
+            print("\n[3] Chờ content load...")
+            time.sleep(5)
+            print("✓ Done")
+            
+            print("\n[4] Phân tích HTML...")
+            html = page.content()
+            soup = BeautifulSoup(html, 'html.parser')
+            
+            print(f"✓ HTML length: {len(html)} bytes")
+            print(f"✓ Total links: {len(soup.find_all('a'))}")
+            
+            # Tìm link quận
+            print("\n[5] Tìm link Quận/Huyện...")
+            districts = []
+            for link in soup.find_all('a'):
+                href = link.get('href', '')
+                text = link.get_text().strip()
+                
+                if href and text and ('quan-' in href.lower() or 'huyen-' in href.lower()):
+                    if len(text) < 50:
+                        districts.append({
+                            'name': text,
+                            'href': href
+                        })
+            
+            print(f"✓ Tìm thấy {len(districts)} quận/huyện")
+            
+            if len(districts) > 0:
+                print("\nDanh sách quận (10 cái đầu):")
+                for i, d in enumerate(districts[:10], 1):
+```

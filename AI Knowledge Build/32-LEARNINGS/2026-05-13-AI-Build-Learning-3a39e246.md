@@ -7,12 +7,9 @@ cwd: C:\AI Build Learning
 
 # Auto-Learnings — AI Build Learning — 2026-05-13
 
-> Session: `3a39e246` | Generated: 2026-05-13 04:19:25 | Items: 17
+> Session: `3a39e246` | Generated: 2026-05-13 09:08:52 | Items: 18
 
 ---
-
-## Mục tiêu session
-- Đây là dự án gì
 
 ## Files đã thay đổi
 - `Write` → `C:\AI Build Learning\.claude\hooks\longbrain-context.js`
@@ -27,8 +24,6 @@ cwd: C:\AI Build Learning
 - `Write` → `C:\AI Build Learning\mcp-server\audit.js`
 
 ## Longbrain tools đã dùng
-- `add_knowledge`: MCP-Build-Complete-Guide
-- `add_knowledge`: MCP-Claude-Code-Config-Patterns
 - `add_learning`: Nhiều agent cùng làm 1 việc phức tạp tốt hơn chia nhiều việc cho nhiều agent
 - `add_knowledge`: Claude-Code-System-Audit-Techniques
 
@@ -130,8 +125,7 @@ const settings = JSO`
 
 ## [Decision] Chọn Claude
 
-**Decision:** 2. **Tool description**: Viết rõ ràng vì Claude dùng để quyết định khi nào gọi
-**Context:** 1. **STDIO**: KHÔNG BAO GIỜ dùng `console.log()` → phải dùng `console.error()` | 3. **Zod validation**: Required cho TypeScript SDK
+**Decision:** Hiểu rồi. Vấn đề cốt lõi là: **MCP tools chỉ chạy khi Claude tự quyết định dùng, không phải tự động trước mỗi message.**
 
 ---
 
@@ -155,9 +149,10 @@ const settings = JSO`
 
 ---
 
-## [Learning] **STDIO**: KHÔNG BAO GIỜ dùng `console.log()` → phải dù...
+## [Decision] Không chỉ lưu "dùng gì" mà lưu "tại sao chọn cái n...
 
-**Insight:** **STDIO**: KHÔNG BAO GIỜ dùng `console.log()` → phải dùng `console.error()`
+**Decision:** Không chỉ lưu "dùng gì" mà lưu "tại sao chọn cái này, bỏ cái kia":
+**Context:** ### 6. Decision Log — Lưu LÝ DO quyết định kỹ thuật
 
 ---
 
@@ -182,6 +177,18 @@ const settings = JSO`
 ## [Learning] **Cần restart Claude Code** để PreToolUse hook mới có h...
 
 **Insight:** **Cần restart Claude Code** để PreToolUse hook mới có hiệu lực.
+
+---
+
+## [Learning] Tôi thấy 2 false positive từ audit script và cần đọc sâ...
+
+**Insight:** Tôi thấy 2 false positive từ audit script và cần đọc sâu hơn để tìm real issues.
+**Context command:** `node -e "
+const fs = require('fs');
+
+// === DEEP LOGIC REVIEW ===
+
+// Issue A: git force-push patter`
 
 ---
 

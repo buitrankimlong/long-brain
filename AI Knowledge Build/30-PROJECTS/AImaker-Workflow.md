@@ -28,3 +28,77 @@ Script hoạt động ổn định. Cho phép viết lại bài từ article.jso
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+fetch_article.py:
+```python
+"""
+Script fetch bài viết mới nhất từ RSS feed của AImaker Substack.
+"""
+
+import feedparser
+import json
+import sys
+
+# URL của RSS feed
+RSS_URL = "https://aimaker.substack.com/feed"
+
+def fetch_latest_article():
+    """Đọc RSS feed và trả về bài viết mới nhất."""
+
+    # Bước 1: Fetch RSS feed
+    print("Đang tải RSS feed...")
+    feed = feedparser.parse(RSS_URL)
+
+    # Bước 2: Kiểm tra lỗi kết nối
+    if feed.bozo and not feed.entries:
+        print(f"Lỗi: Không thể đọc RSS feed. Chi tiết: {feed.bozo_exception}")
+        sys.exit(1)
+
+    if not feed.entries:
+        print("Không tìm thấy bài viết nào trong feed.")
+        sys.exit(1)
+
+    print(f"Tìm thấy {len(feed.entries)} bài viết. Lấy bài mới nhất...\n")
+
+    # Bước 3: Lấy bài viết mới nhất (index 0)
+    entry = feed.entries[0]
+
+    # Bước 4: Trích xuất thông tin
+    article = {
+        "title": entry.get("title", "Không có tiêu đề"),
+        "link": entry.get("link", ""),
+        "published": entry.get("published", "Không rõ ngày"),
+        "summary": entry.get("summary", ""),
+        # Lấy full content nếu có (thường nằm trong trường content)
+        "content": "",
+    }
+
+    # Một số feed lưu nội dung đầy đủ trong trường 'content'
+    if "content" in entry:
+        article["content"] = entry.content[0].get("value", "")
+    else:
+        # Nếu không có content, dùng summary làm nội dung
+        article["content"] = article["summary"]
+
+    # Bước 5: In thông tin ra màn hình
+    print(f"Tiêu đề:  {article['title']}")
+    print(f"Link:     {article['link']}")
+    print(f"Ngày:     {article['published']}")
+    print(f"Tóm tắt:  {article['summary'][:200]}...")
+    print(f"Nội dung: {len(article['content'])} ký tự")
+
+    # Bước 6: Lưu vào file JSON
+    output_file = "article.json"
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(article, f, ensure_ascii=False, indent=2)
+
+    print(f"\nĐã lưu bài viết vào {output_file}")
+    return article
+
+
+if __name__ == "__main__":
+    fetch_latest_article()
+```

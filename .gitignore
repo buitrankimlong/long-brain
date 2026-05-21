@@ -4,3 +4,21 @@ mcp-server/node_modules/
 *.log
 .DS_Store
 Thumbs.db
+
+# SQLite database (personal data, generated locally)
+mcp-server/longbrain.db
+mcp-server/longbrain.db-shm
+mcp-server/longbrain.db-wal
+
+# Local MCP config with absolute paths
+mcp-server/AI Build Learning.mcp.json
+
+# Secrets
+.env
+mcp-server/.env
+
+# Local Claude settings
+.claude/settings.local.json
+
+# Personal files
+facebook spy.json

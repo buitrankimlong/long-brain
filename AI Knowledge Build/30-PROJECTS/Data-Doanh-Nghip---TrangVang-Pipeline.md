@@ -33,3 +33,90 @@ Code hoàn thành, ước tính 3-4h với 130k files. Chi phí ~$49. Hỗ trợ
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+run.py:
+```python
+import pandas as pd
+import re
+import dns.resolver
+import smtplib
+import socket
+import time
+import random
+
+def is_valid_format(email):
+    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return re.match(pattern, str(email)) is not None
+
+def is_email_active(email):
+    try:
+        domain = email.split('@')[1]
+        records = dns.resolver.resolve(domain, 'MX')
+        mx_record = str(records[0].exchange)
+        
+        server = smtplib.SMTP(timeout=5)
+        server.set_debuglevel(0)
+        
+        server.connect(mx_record)
+        # Bắt buộc: Khai báo một tên miền hợp lệ thay vì local_hostname để tăng độ uy tín
+        server.helo('mail.google.com') 
+        # Bắt buộc: Điền một email có thật của bạn vào đây
+        server.mail('your_real_email@gmail.com') 
+        code, message = server.rcpt(str(email))
+        server.quit()
+        
+        if code == 250:
+            return True
+        return False
+            
+    except Exception:
+        # Gộp chung các lỗi mạng/DNS để code ngắn gọn
+        return False
+
+def process_excel(input_file, output_file):
+    print(f"Đang đọc dữ liệu từ {input_file}...")
+    try:
+        df = pd.read_excel(input_file)
+    except FileNotFoundError:
+        print("Lỗi: Không tìm thấy file Excel.")
+        return
+
+    if len(df.columns) < 10:
+        print("Lỗi: File không có đủ 10 cột (cột J).")
+        return
+        
+    email_col_name = df.columns[9]
+    print(f"Bắt đầu lọc email tại cột '{email_col_name}'...\n")
+    
+    # Lọc bỏ hàng trống
+    df = df.dropna(subset=[email_col_name])
+    df = df[df[email_col_name].astype(str).str.strip() != '']
+    
+    valid_rows = []
+    total_emails = len(df)
+    processed_count = 0
+    
+    print(f"Bắt đầu kiểm tra {total_emails} email. Đã bật chế độ chống Block IP...")
+    
+    for index, row in df.iterrows():
+        email = str(row[email_col_name]).strip()
+        processed_count += 1
+        
+        if is_valid_format(email):
+            if is_email_active(email):
+                valid_rows.append(row)
+                print(f"[{processed_count}/{total_emails}] [✓ HỢP LỆ] {email}")
+            else:
+                print(f"[{processed_count}/{total_emails}] [x CHẾT/LỖI] {email}")
+        else:
+            print(f"[{processed_count}/{total_emails}] [! SAI ĐỊNH DẠNG] {email}")
+            
+        # --- CƠ CHẾ CHỐNG BLOCK IP ---
+        if processed_count < total_emails: # Không delay ở email cuối cùng
+            # 1. Nghỉ giải lao sau mỗi đợt 50 emails
+            if processed_count % 50 == 0:
+                print("\n[HỆ THỐNG] Đã check xong 50 email. Tạm nghỉ 60 giây để tránh bị server mail chặn...")
+```

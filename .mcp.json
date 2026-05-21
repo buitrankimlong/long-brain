@@ -1,12 +1,10 @@
 {
   "mcpServers": {
     "longbrain": {
-      "command": "C:/Program Files/nodejs/node.exe",
-      "args": [
-        "C:/AI Build Learning/mcp-server/server.js"
-      ],
+      "command": "node",
+      "args": ["./mcp-server/server.js"],
       "env": {
-        "AI_KNOWLEDGE_VAULT": "C:/AI Build Learning"
+        "AI_KNOWLEDGE_VAULT": "${AI_KNOWLEDGE_VAULT}"
       }
     }
   }

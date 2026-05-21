@@ -32,3 +32,90 @@ Crawler hoàn thành, bypass Cloudflare. Crawl masothue per location. Output: CS
 
 ## Lien ket
 -> [[30 Du An]] | [[32 Bai Hoc Duc Ket]]
+
+
+## Source Code
+
+masothue.py:
+```python
+import time
+import csv
+import random
+import requests
+import json
+import os
+from datetime import datetime
+from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
+
+# --- CẤU HÌNH ---
+OUTPUT_FILE = 'data_doanh_nghiep_full.csv'
+LOCATION_FILE = 'location_map.csv'
+PROGRESS_FILE = 'crawl_progress.json'  # File lưu tiến trình
+MAX_PAGES_PER_LOCATION = 10000  # Số trang tối đa trên 1 location
+TIMEOUT_SEC = 60000 # 60 giây (đủ lâu để bạn tự click Cloudflare nếu có)
+MIN_COMPANIES_PER_PAGE = 25  # Số công ty tối thiểu trên 1 trang (để biết có trang tiếp theo)
+CLOUDFLARE_FAIL_LIMIT = 3  # Số lần fail Cloudflare cho phép trước khi dừng
+
+# --- CẤU HÌNH TELEGRAM ---
+TELEGRAM_BOT_TOKEN = "[REDACTED_BOT_TOKEN]"
+TELEGRAM_CHAT_ID = "8569154307"
+
+def send_telegram(message):
+    """Gửi message qua Telegram"""
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": message
+        }
+        response = requests.post(url, json=payload, timeout=10)
+        if response.status_code == 200:
+            print(f"✅ Gửi Telegram: {message[:50]}...")
+        else:
+            print(f"⚠️ Lỗi gửi Telegram: {response.status_code}")
+    except Exception as e:
+        print(f"⚠️ Lỗi kết nối Telegram: {e}")
+
+def load_progress():
+    """Tải tiến trình từ file"""
+    try:
+        if os.path.exists(PROGRESS_FILE):
+            with open(PROGRESS_FILE, 'r', encoding='utf-8') as f:
+                progress = json.load(f)
+            print(f"✅ Tải tiến trình: Location index {progress.get('last_completed_location_idx', 0)} | "
+                  f"Tổng công ty: {progress.get('total_companies', 0)}")
+            return progress
+    except Exception as e:
+        print(f"⚠️ Lỗi tải progress: {e}")
+    return {"last_completed_location_idx": -1, "total_companies": 0}
+
+def save_progress(location_idx, total_companies):
+    """Lưu tiến trình vào file"""
+    try:
+        progress = {
+            "last_completed_location_idx": location_idx,
+            "total_companies": total_companies,
+            "last_update": datetime.now().isoformat()
+        }
+        with open(PROGRESS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(progress, f, ensure_ascii=False, indent=2)
+        print(f"💾 Lưu tiến trình: Location {location_idx} | Tổng công ty: {total_companies}")
+    except Exception as e:
+        print(f"⚠️ Lỗi lưu progress: {e}")
+
+def clean_text(text):
+    """Làm sạch văn bản"""
+    if text:
+        return " ".join(text.split())
+    return ""
+
+def check_and_close_ads(page):
+    """
+    Hàm phát hiện và tắt quảng cáo Google Vignette che màn hình.
+    """
+    try:
+        # Kiểm tra URL có bị dính đuôi quảng cáo không
+        if "google_vignette" in page.url or "#google_vignette" in page.url:
+            print("⚠️ Phát hiện quảng cáo (Vignette)! Đang tự động tắt...")
+```
